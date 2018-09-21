@@ -3,15 +3,15 @@
 #' @param obj Element of class \code{obsforc}
 #'
 #' @export
-as.data.frame.obsforc <- function(obj){
-
-  df <- data.frame(
-    obs  = obs,
-    forc = forc
-  )
-
-  return(df)
-}
+# as.data.frame.obsforc <- function(obj){
+#
+#   df <- data.frame(
+#     obs  = obs,
+#     forc = forc
+#   )
+#
+#   return(df)
+# }
 
 
 #' Printing a obsforc object
@@ -19,9 +19,9 @@ as.data.frame.obsforc <- function(obj){
 #' @param obj Element of class \code{obsforc}
 #'
 #' @export
-print.obsforc <- function(obj){
-
-}
+# print.obsforc <- function(obj){
+#
+# }
 
 #' Plotting an obsforc object
 #'
@@ -30,61 +30,61 @@ print.obsforc <- function(obj){
 #' @param subtitle Character specifying the plot subtitle
 #'
 #' @export
-plot.obsforc <- function(obj, caption = NULL, subtitle = NULL){
-
-  if(requireNamespace("RColorBrewer", quietly = TRUE)){
-    color <- RColorBrewer::brewer.pal(n = 8, name = "Set1")
-  }else{
-    color <- c("red", "blue")
-  }
-
-  obsforc_df  <- as.data.frame.obsforc(obj) %>% as.tibble()
-  obsforc_df0 <- obsforc_df %>% filter(obs == 0)
-  obsforc_df1 <- obsforc_df %>% filter(obs == 1)
-
-  xlim <- c(min(obsforc_df$forc), max(obsforc_df$forc))
-
-  line_vals <- obsforc %>%
-    group_by(obs) %>%
-    summarize(minv = min(forc), maxv = max(forc)) %>%
-    ungroup
-
-  dat_line  <- tibble(
-    x  = c(line_vals %>% filter(obs == 0) %>% select(-obs) %>% as.numeric,
-           line_vals %>% filter(obs == 1) %>% select(-obs) %>% as.numeric),
-    y   = c(ylim[1], ylim[1], ylim[2], ylim[2]),
-    obs = as.factor(c(0,0,1,1)))
-
-  phistogramm <- ggplot() +
-    geom_histogram(data = obsforc_df0, aes(x = forc, y = -..density..),
-                   fill = colors[1], alpha = 1, breaks = breaks) +
-    geom_histogram(data = obsforc_df1, aes(x = forc, y = ..density..),
-                   fill = colors[2], alpha = 1, breaks = breaks) +
-    geom_line(data = dat_line, aes(x = x, y = y, col = obs), lwd = 1) +
-    scale_color_manual(values = colors[1:2]) +
-
-    geom_hline(yintercept = 0) +
-    xlab(xlabs) + ylab("") + ggtitle("", subtitle = "") +
-    theme(legend.position = "none") +
-    scale_fill_manual(name = "Observation", values = colors[1:2]) +
-
-    scale_y_continuous(
-      labels = NULL,
-      breaks = seq(ylim[1], ylim[2], length.out = 11),
-      minor_breaks = NULL) +
-
-    coord_cartesian(ylim = ylim) +
-
-    annotate("text", x = xlim[1] + 0.95 * diff(xlim), y = ylim[1] + 0.1 * diff(ylim),
-             label = "F[0]", size = 7, col = colors[1], parse = TRUE) +
-
-    annotate("text", x = xlim[1] + 0.95 * diff(xlim), y = ylim[1] + 0.9 * diff(ylim),
-             label = "F[1]", size = 7, col = colors[2], parse = TRUE)
-
-  phistogramm <- move_caption_afterwards(p = phistogramm, caption = caption, subtit = subtit)
-
-
-}
+# plot.obsforc <- function(obj, caption = NULL, subtitle = NULL){
+#
+#   if(requireNamespace("RColorBrewer", quietly = TRUE)){
+#     color <- RColorBrewer::brewer.pal(n = 8, name = "Set1")
+#   }else{
+#     color <- c("red", "blue")
+#   }
+#
+#   obsforc_df  <- as.data.frame.obsforc(obj) %>% as.tibble()
+#   obsforc_df0 <- obsforc_df %>% filter(obs == 0)
+#   obsforc_df1 <- obsforc_df %>% filter(obs == 1)
+#
+#   xlim <- c(min(obsforc_df$forc), max(obsforc_df$forc))
+#
+#   line_vals <- obsforc %>%
+#     group_by(obs) %>%
+#     summarize(minv = min(forc), maxv = max(forc)) %>%
+#     ungroup
+#
+#   dat_line  <- tibble(
+#     x  = c(line_vals %>% filter(obs == 0) %>% select(-obs) %>% as.numeric,
+#            line_vals %>% filter(obs == 1) %>% select(-obs) %>% as.numeric),
+#     y   = c(ylim[1], ylim[1], ylim[2], ylim[2]),
+#     obs = as.factor(c(0,0,1,1)))
+#
+#   phistogramm <- ggplot() +
+#     geom_histogram(data = obsforc_df0, aes(x = forc, y = -..density..),
+#                    fill = colors[1], alpha = 1, breaks = breaks) +
+#     geom_histogram(data = obsforc_df1, aes(x = forc, y = ..density..),
+#                    fill = colors[2], alpha = 1, breaks = breaks) +
+#     geom_line(data = dat_line, aes(x = x, y = y, col = obs), lwd = 1) +
+#     scale_color_manual(values = colors[1:2]) +
+#
+#     geom_hline(yintercept = 0) +
+#     xlab(xlabs) + ylab("") + ggtitle("", subtitle = "") +
+#     theme(legend.position = "none") +
+#     scale_fill_manual(name = "Observation", values = colors[1:2]) +
+#
+#     scale_y_continuous(
+#       labels = NULL,
+#       breaks = seq(ylim[1], ylim[2], length.out = 11),
+#       minor_breaks = NULL) +
+#
+#     coord_cartesian(ylim = ylim) +
+#
+#     annotate("text", x = xlim[1] + 0.95 * diff(xlim), y = ylim[1] + 0.1 * diff(ylim),
+#              label = "F[0]", size = 7, col = colors[1], parse = TRUE) +
+#
+#     annotate("text", x = xlim[1] + 0.95 * diff(xlim), y = ylim[1] + 0.9 * diff(ylim),
+#              label = "F[1]", size = 7, col = colors[2], parse = TRUE)
+#
+#   phistogramm <- move_caption_afterwards(p = phistogramm, caption = caption, subtit = subtit)
+#
+#
+# }
 
 
 
