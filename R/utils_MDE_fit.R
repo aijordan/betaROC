@@ -1,10 +1,50 @@
-#' Fits initial parameters for the minimum distance estimation of an empirical
-#' ROC curve
+#' Minimum distance fit for empirical ROC curve
 #'
 #' @param empROC \code{data.frame} with true positive (TPR) and false positive
 #'   (FPR) values of the empirical ROC curve
 #' @param MDE_info \code{list} containing information about the required minimum
 #'   distance estimation (MDE) fit
+#'
+#' @return
+#' @details
+fit_MDE <- function(empROC, MDE_info){
+
+  if(missing(empROC)) stop("no empirical ROC curve provided")
+  if(missing(MDE_info)) stop("no information about MDE fit provided")
+  if(all(MDE_info$method == "empirical")) return(NULL)
+
+  pars_init <- fit_initial_pars(empROC, MDE_info)
+
+  L2_init <- L2dist_empROC_parROC(empROC, pars_init, MDE_info, pencon = FALSE)
+
+  est <- try(optim(
+    par      = pars_init,
+    fn       = L2dist_empROC_parROC,
+    empROC   = empROC,
+    MDE_info = MDE_info,
+    pencon   = TRUE,
+    method   = "BFGS",
+    control  = list(trace = FALSE)))
+
+  pars_fit <- est$par
+  L2_fit <- L2dist_empROC_parROC(empROC, pars_fit, MDE_info, pencon = FALSE)
+
+  res <- list(
+    pars_init = pars_init,
+    L2_init   = L2_init,
+    pars_fit  = pars_fit,
+    L2_fit    = L2_fit
+  )
+
+  return(res)
+}
+
+#' Fits initial parameters for the minimum distance estimation of an empirical
+#' ROC curve
+#'
+#' @inheritParams fit_MDE
+#' @return
+#' @details TBD
 fit_initial_pars <- function(empROC, MDE_info){
 
   MDEm <- MDE_info$method
@@ -14,15 +54,15 @@ fit_initial_pars <- function(empROC, MDE_info){
   gamma <- fit_ipar_gamma(empROC)
   delta <- fit_ipar_delta(empROC)
 
-  if(MDEm == "bin2p" & MDEi == "unrestricted") pars <- c(1,1)
-  if(MDEm == "bin2p" & MDEi == "concave") pars <- 1
-  if(MDEm == "bin3p" & MDEi == "unrestricted") pars <- c(1,1,gamma)
-  if(MDEm == "bin3p" & MDEi == "concave") pars <- c(1,gamma)
+  if("bin2p" %in% MDEm & MDEi == "unrestricted") pars <- c(1,1)
+  if("bin2p" %in% MDEm & MDEi == "concave") pars <- 1
+  if("bin3p" %in% MDEm & MDEi == "unrestricted") pars <- c(1,1,gamma)
+  if("bin3p" %in% MDEm & MDEi == "concave") pars <- c(1,gamma)
 
-  if(MDEm == "beta2p") pars <- c(1,1)
-  if(MDEm == "beta3p_v") pars <- c(1,1,gamma)
-  if(MDEm == "beta3p_h") pars <- c(1,1,delta)
-  if(MDEm == "beta4p") pars <- c(1,1,gamma,delta)
+  if("beta2p" %in% MDEm) pars <- c(1,1)
+  if("beta2p_v" %in% MDEm) pars <- c(1,1,gamma)
+  if("beta2p_h" %in% MDEm) pars <- c(1,1,delta)
+  if("beta4p" %in% MDEm) pars <- c(1,1,gamma,delta)
 
   est <- try(optim(
     par      = pars,
@@ -32,7 +72,7 @@ fit_initial_pars <- function(empROC, MDE_info){
   ))
   pars <- est$par
 
-  if(grepl("beta", MDEm) & MDEi == "concave")
+  if(any(grepl("beta", MDEm)) & MDEi == "concave")
     pars <- shift_ipar_beta(pars, MDE_info)
 
   return(pars)
@@ -49,7 +89,7 @@ fit_initial_pars <- function(empROC, MDE_info){
 roc_sqe <- function(pars, empROC, MDE_info){
   MDEm <- MDE_info$method
   MDEi <- MDE_info$info
-  if(grepl("bin", MDEm) & MDEi == "concave") pars <- c(pars[1], 1, pars[-1])
+  if(any(grepl("bin", MDEm)) & MDEi == "concave") pars <- c(pars[1], 1, pars[-1])
 
   TPR <- get_TPR(empROC$FPR, pars, MDE_info)
   sqe <- sum((TPR - empROC$TPR)^2)
@@ -95,8 +135,6 @@ shift_ipar_beta <- function(pars, MDE_info, eps = 0.1){
   return(pars)
 }
 
-
-
 #' Only for test purposes
 #'
 #' @inheritParams shift_ipar_beta
@@ -115,7 +153,7 @@ visualize_ipar_beta <- function(MDE_info, eps){
   conc    <- apply(par_tib, 1, check_concavity, family = "beta")
   dist    <- apply(par_tib, 1, get_dist_to_beta_concave_region)
   dist[dist == 0] <- NA
-  par_tib <- par_tib %>% add_column(dist = dist)
+  par_tib <- par_tib %>% tibble::add_column(dist = dist)
 
 
   s_x <- 1-eps/2.41
@@ -132,8 +170,8 @@ visualize_ipar_beta <- function(MDE_info, eps){
     select(alpha, beta)
   pars_shift <- as.tibble(t(apply(pars_check, 1, function(x)
     shift_ipar_beta(pars = x, MDE_info = MDE_info, eps = eps))))
-  pars_check <- pars_check %>% add_column(group = 1:nrow(pars_check))
-  pars_shift <- pars_shift %>% add_column(group = 1:nrow(pars_shift))
+  pars_check <- pars_check %>% tibble::add_column(group = 1:nrow(pars_check))
+  pars_shift <- pars_shift %>% tibble::add_column(group = 1:nrow(pars_shift))
   pars_vis   <- bind_rows(pars_check, pars_shift) %>%
     arrange(group) %>% mutate(group = as.factor(group))
 
@@ -162,3 +200,299 @@ visualize_ipar_beta <- function(MDE_info, eps){
 
 
 
+#' Increases empirical ROC curve by intersections with parametric ROC curve
+#'
+#' @param pars Vector of parameters as specified by \code{MDE_info}
+#' @inheritParams fit_MDE
+#'
+#'@details
+roc_intersection <- function(empROC, pars, MDE_info){
+
+  empROCsect <- empROC %>%
+    interval_roc %>%
+    add_slope_empROC %>%
+    add_slope_parROC(pars, MDE_info) %>%
+    add_diff_empROC_parROC(pars, MDE_info) %>%
+    dplyr::mutate(case = (d1 >= 0)*2 + (d2 >= 0) + 1) %>%
+    dplyr::mutate(case = ifelse(FPR0 > 0 & FPR1 < 1, case, 1)) %>%
+    check_consider(MDE_info)
+
+  empROCsect_14 <- empROCsect %>% filter(case %in% c(1,4))
+  if(nrow(empROCsect_14) == 0){
+    intersect_14 <- 0
+  }else{
+    intersect_14 <- test_for_zeroes(empROCsect_14, pars, MDE_info)
+  }
+
+  empROCsect_23 <- empROCsect %>% filter(case %in% c(2,3))
+  if(nrow(empROCsect_23) == 0){
+    intersect_23 <- 0
+  }else{
+    intersect_23 <- get_zeroes(empROCsect_23, pars, MDE_info)
+  }
+
+  intersect <- combine_intersect(intersect_14, intersect_23)
+
+  empROCsect <- add_zeroes(empROCsect, intersect, pars, MDE_info)
+
+  return(empROCsect)
+}
+
+
+combine_intersect <- function(intersect_14, intersect_23){
+  intersect <- unique(sort(c(intersect_14, intersect_23)))
+  intersect <- intersect[!is.na(intersect)]
+  intersect <- intersect[intersect > 0 & intersect < 1]
+  return(intersect)
+}
+
+#'
+#'
+#'
+#'
+#'@details
+#'Case I
+#'2 Abfrageschritte
+#'s1 <= m -> out
+#'(s1-m)*diff(x) < d1 -> out
+#'ansonsten 2 Loesungen und Split-Mechanismus anwenden
+#'3 Abfrageschritte
+#'a convex -> out
+#'b Steigung Beta in rechtem Endpunkt groesser gleich m -> out
+#'c Differenz der Steigungen mal x-Differenz kleiner y-Differenz -> out
+#'-> ansonsten 2 Loesungen und Split-Mechanismus anwenden
+check_consider <- function(x, MDE_info){
+
+  expectnames <- c("FPR0", "TPR0", "FPR1", "TPR1",
+                   "m", "b", "s1", "s2", "d1", "d2", "case")
+  if(any(!(names(x) == expectnames))) stop("x is different than expected")
+
+  if(any(grepl("bin", MDE_info$method))){
+    con <- x %>% tibble::add_column(consider = TRUE)
+  }else{
+    cat("USE case_when and check simplification as well as correctness")
+
+    concave <- (MDE_info$info == "concave")
+    con <- x %>% tibble::add_column(consider = NA) %>%
+      mutate(consider = ifelse(d1 > 0 & d2 < 0, TRUE, consider)) %>%
+      mutate(consider = ifelse(d1 < 0 & d2 > 0, TRUE, consider)) %>%
+
+      mutate(consider = ifelse(d1 < 0 & d2 < 0 & m == 0 & concave, FALSE, consider)) %>%
+      mutate(consider = ifelse(d1 < 0 & d2 < 0 & s1 <= m & concave, FALSE, consider)) %>%
+      mutate(consider = ifelse(d1 < 0 & d2 < 0 & (s1-m)*(FPR1-FPR0) < d1 & concave, FALSE, consider)) %>%
+
+      mutate(consider = ifelse(d1 > 0 & d2 > 0 & m == 0, FALSE, consider)) %>%
+      mutate(consider = ifelse(d1 > 0 & d2 > 0 & s2 <= m & concave, FALSE, consider)) %>%
+      mutate(consider = ifelse(d1 > 0 & d2 > 0 & (s2-m)*(FPR1-FPR0) < d2 & concave, FALSE, consider))
+
+  }
+  return(con)
+}
+
+#' Extends empirical ROC curve points by intersection with parametric ROC curve
+#'
+#' @param x
+#' @param intersect
+#' @inheritParams roc_intersection
+add_zeroes <- function(x, intersect, pars, MDE_info){
+
+  x_add <- tibble()
+  r_del <- NULL
+
+  for(i in 1:length(intersect)){
+
+    ind <- max(which(x$FPR0 <= intersect[i]))
+    if(x$FPR0[ind] == intersect[i]) next
+
+    r_del <- c(r_del, ind)
+    TPRint <- x$m[ind] * intersect[i] + x$b[ind]
+    diffint <- diff_empROC_parROC(intersect[i], x$m[ind], x$b[ind], pars, MDE_info)
+    caseint <- 0
+    sint <- get_slope(intersect[i], pars, MDE_info)
+
+    x_r1 <- x[ind,]
+    x_r1[, c(3,4,8,9,11)] <- c(intersect[i], TPRint, diffint, caseint, sint)
+
+    x_r2 <- x[ind,]
+    x_r2[, c(1,2,7,9,10)] <- c(intersect[i], TPRint, diffint, caseint, sint)
+
+    x_add <- x_add %>% bind_rows(x_r1, x_r2)
+  }
+
+  if(is.null(r_del)){
+    x <- x %>% bind_rows(x_add) %>% arrange(FPR0, TPR0) %>% distinct()
+  }else{
+    x <- x[-r_del, ] %>% bind_rows(x_add) %>% arrange(FPR0, TPR0) %>% distinct()
+  }
+
+  # ind0     <- abs(TFPR_use$FPR1) < 1e-06
+  # ind1     <- abs(TFPR_use$FPR - 1) < 1e-06
+  # ind      <- !(ind0 | ind1)
+  # TFPR_use <- TFPR_use[ind, ]
+  return(x)
+}
+
+
+#' Computes the intersections of empirical and parametric ROC curves
+#'
+#' @param x
+#' @param intersect
+#' @inheritParams roc_intersection
+get_zeroes <- function(x, pars, MDE_info){
+
+    intersect <- NULL
+
+    for(i in 1:nrow(x)){
+      addzero <- uniroot(
+        f = function(y) diff_empROC_parROC(y, x$m[i], x$b[i], pars, MDE_info),
+        interval = c(x$FPR0[i], x$FPR1[i]))$root
+      intersect <- c(intersect, addzero)
+      rm(addzero)
+    }
+
+    return(intersect)
+}
+
+#' Tests for intersections of empirical and parametric ROC curves
+#'
+#' @param x
+#' @param intersect
+#' @inheritParams roc_intersection
+test_for_zeroes <- function(x, pars, MDE_info){
+
+    intersect <- NULL
+
+    for(i in 1:nrow(x)){
+      FPRtest <- seq(x$FPR0[i], x$FPR1[i], length.out = 300)
+      zerotest <- diff_empROC_parROC(FPR = FPRtest, m = x$m[i], b = x$b[i],
+                                     pars = pars, MDE_info = MDE_info)
+
+      if(length(unique((sign(zerotest)))) == 1){
+        intersect <- c(intersect, NA)
+      }else{
+        s0 <- sign(zerotest[1])
+        while(TRUE){
+          inds <- min(which(sign(zerotest) != s0))
+          indl <- FPRtest[inds-1]
+          indr <- FPRtest[inds]
+          intersect <- c(intersect, uniroot(
+            f = function(y) diff_empROC_parROC(y, x$m[i], x$b[i],
+                                               pars, MDE_info),
+            interval = c(indl, indr))$root)
+          zerotest <- zerotest[-(1:(inds-1))]
+          FPRtest <- FPRtest[-(1:(inds-1))]
+          s0 <- sign(zerotest[1])
+
+          if(length(unique((sign(zerotest)))) == 1) break
+        }
+      }
+    }
+
+    return(intersect)
+}
+
+
+
+
+
+
+#' L2 distance between empirical and parametric ROC curve
+#'
+#' @param pencon specifies if the L2 distance in case of ROC curves that shall
+#'   be concave, but violate the concavity constraint, shall be penalized.
+#'   This option is essential for concave MDE estimation (see ...s)
+#' @inheritParams roc_intersection
+L2dist_empROC_parROC <- function(empROC, pars, MDE_info, pencon){
+  allowednames <- c("FPR0", "TPR0", "FPR1", "TPR1", "m", "b")
+  empROCsect <- roc_intersection(empROC, pars, MDE_info)
+  if(any(!(names(empROCsect)[1:6] == allowednames))) stop("wrong names der. obj.")
+  L2_dist_vec <- apply(empROCsect, 1, function(x)
+    integratediff(x, pars = pars, MDE_info = MDE_info))
+  L2_dist <- L2dist_concave(sqrt(sum(L2_dist_vec)), pars, MDE_info, pencon)
+  return(L2_dist)
+}
+
+
+
+#' Integrate squared difference between empirical and parametric ROC curve
+#'
+#' @param x ...
+#' @inheritParams roc_intersection
+integratediff <- function(x, pars, MDE_info){
+  diffint2 <- function(y) diff_empROC_parROC(y, x[5], x[6], pars, MDE_info)^2
+  intres  <- integrate(f = diffint2, lower = x[1], upper = x[3])
+  return(intres$value)
+}
+
+#' ...
+#'
+#' @param x ...
+#' @inheritParams roc_intersection
+L2dist_concave <- function(x, pars, MDE_info, pencon){
+  if(pencon){
+    corfac <- get_correctionfactor(pars, MDE_info)
+    corincr <- get_correctionincrement(pars, MDE_info)
+    return(x * corfac + corincr)
+  }else{
+    return(x)
+  }
+}
+
+#' Correction factor for concavity constraint violation for concave MDE fits
+#'
+#' @inheritParams L2dist_empROC_parROC
+get_correctionfactor <- function(pars, MDE_info){
+  MDEm <- MDE_info$method
+  MDEi <- MDE_info$info
+  if(MDEi == "unrestricted") return(1)
+  if(MDEi == "concave"){
+    if(grepl("bin", MDEm)) corfac <- 1 + 10^2*(pars[2]-1)^2
+    if(grepl("beta", MDEm)){
+      corfac <- 1 + 10^2 * get_distance_to_beta_concave_region(pars)
+    }
+  }
+  return(corfac)
+}
+
+#' Correction increment for concavity constraint violation for concave MDE fits
+#'
+#' @inheritParams L2dist_empROC_parROC
+get_correctionincrement <- function(pars, MDE_info){
+  MDEm <- MDE_info$method
+  MDEi <- MDE_info$info
+  if(MDEi == "unrestricted") return(0)
+  if(MDEi == "concave"){
+    if(MDEm == "bin2p") corincr <- (pars[2] != 1)
+    if(MDEm == "bin3p") corincr <- (pars2 != 1 | pars[3] < 0 | pars[3] > 1)
+    if(grepl("beta", MDEm)){
+      alpha <- (pars[1] < 0 | pars[1] > 1)
+      beta  <- (sum(pars[1:2]) < 2 | pars[2] < 0)
+
+      if(MDEm == "beta2p") corincr <- max(alpha, beta)
+      if(grepl("beta3p", MDEm)){
+        third <- (pars[3] < 0 | pars[3] > 1)
+        corincr <- max(alpha, beta, third)
+      }
+      if("MDEm" == "beta4p"){
+        gamma <- (pars[3] < 0 | pars[3] > 1)
+        delta <- (pars[4] < 0 | pars[4] > 1)
+        corincr <- max(alpha, beta, gamma, delta)
+      }
+    }
+  }
+  return(corincr)
+}
+
+#' Minimum euclidean distance from current beta parameters to concave beta parameters
+#'
+#' @inheritParams L2dist_empROC_parROC
+get_distance_to_beta_concave_region <- function(pars){
+  alpha <- pars[1]
+  beta  <- pars[2]
+  if(alpha > 1  & beta >= 1) dist2 <- abs(alpha-1)
+  if(alpha >= 1 & beta < 1 ) dist2 <- sqrt((alpha-1)^2 + (beta-1)^2)
+  if(alpha >= beta & alpha < 1 & beta < 1) dist2 <- sqrt((alpha-1)^2 + (beta-1)^2)
+  if(alpha < beta & beta+alpha < 2 & alpha < 1) dist2 <- sqrt(2*((2-alpha-beta)/2)^2)
+  if(!exists("dist2")) dist2 <- 0
+  return(dist2)
+}

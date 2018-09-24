@@ -79,6 +79,9 @@ plot.roc <- function(x, which, ...) {
 
   if ( "empirical" %in% create ) {
 
+    ggplot() +
+      geom_line(data = x$empROC %>% as.tibble, aes(x = FPR, y = TPR))
+
   }
 
   if ( "histogramm" %in% create ) {

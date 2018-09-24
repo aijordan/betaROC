@@ -57,7 +57,7 @@ roc <- function(formula, data, emp_info, fit_method, fit_info){
   res$MDE_info <- list(
     method = methods,
     info   = match.arg(fit_info, info_avail))
-  res$MDEfit <- MDEfit()
+  res$MDEfit <- fit_MDE(res$empROC, res$MDE_info)
 
   class(res) <- "roc"
   return(res)
