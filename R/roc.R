@@ -4,25 +4,36 @@
 #'
 #' @param formula Formula specifying observation and forecast
 #' @param data optional; data frame which incorporates the variables named in
-#'   \code{formula}. If \code{data} is not specified, \code{roc} searches
-#'   for the variables specified in \code{formula} in .GlobalEnv.
+#'   \code{formula}. If \code{data} is not specified, \code{roc} searches for
+#'   the variables specified in \code{formula} in .GlobalEnv.
 #' @param method Method specifies the type of ROC curve to be computed. Partial
-#'   matching is supported and the following names are permitted
-#'   "empirical" generates only the empirical ROC curve
-#'   "bin2p" generates the classical 2-parameter binormal ROC model
-#'   "bin3p" generates the 3-parameter binormal ROC model
-#'   "beta2p" generate the 2-parameter beta ROC model
-#'   "beta3p_v" generates the 3-parameter beta ROC model with a
-#'     vertical straight edge at (0,0)
-#'   "beta3p_h" generates the 3-parameter beta ROC model with a
-#'     horizontal straight edge at (1,1)
-#'   "beta4p" generates the 4-parameter beta ROC model
+#'   matching is supported and the following names are permitted.
+#'   \table{ll}{
+#'   \code{"empirical"} \tab generates only the empirical ROC curve \cr
+#'   \code{"bin2p"} \tab generates the classical 2-parameter binormal ROC model \cr
+#'   \code{"bin3p"} \tab generates the 3-parameter binormal ROC model \cr
+#'   \code{"beta2p"} \tab generate the 2-parameter beta ROC model \cr
+#'   \code{"beta3p_v"} \tab generates the 3-parameter beta ROC model with a
+#'   vertical straight edge at (0,0) \cr
+#'   \code{"beta3p_h"} \tab generates the 3-parameter beta ROC model with a
+#'   horizontal straight edge at (1,1) \cr
+#'   \code{"beta4p"} \tab generates the 4-parameter beta ROC model
+#'   }
+#'
 #'
 #' @return The output is an object of class \code{roc} which is a list
 #'   containing the following components:
 #'   \tabular{ll}{
-#'     \code{x} \tab TBD \cr
-#'     \code{y} \tab TBD
+#'   \code{formula} \tab The formula used within the \code{roc} command \cr
+#'   \code{model.frame} \tab The model frame constructed from the data \cr
+#'   \code{emp_info} \tab Information on the construction of the empirical
+#'   ROC curve \cr
+#'   \code{empROC} \tab \code{data.frame} containing true positive and false
+#'   positive rates of the empirical ROC curve \cr
+#'   \code{MDE_info} \tab \code{list} naming the required fits and the
+#'   constraint for the MDE fit \cr
+#'   \code{MDE_fit} \tab \code{list} with initial and final parameters and
+#'   associated L2 distances between empirical and parametric ROC curve
 #'   }
 #'
 #' @details TBD
@@ -63,8 +74,6 @@ roc <- function(formula, data, emp_info, fit_method, fit_info){
   return(res)
 }
 
-print("FIT - INITIAL PARS - ERLEDIGT -> TESTEN")
-print("FIT - MD ESTIMATION - EINFUEGEN")
 print("ASYMPTOTISCHE VERTEILUNG EINFUEGEN")
 print("PLOTS EINFUEGEN")
 print("STATISTICAL TESTS EINFUEGEN")

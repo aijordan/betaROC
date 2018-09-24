@@ -1,12 +1,19 @@
 #' Minimum distance fit for empirical ROC curve
 #'
-#' @param empROC \code{data.frame} with true positive (TPR) and false positive
-#'   (FPR) values of the empirical ROC curve
-#' @param MDE_info \code{list} containing information about the required minimum
-#'   distance estimation (MDE) fit
+#' Uses minimum distance estimation to fit a parametric ROC curve model to the
+#' empirical ROC curve at hand.
 #'
-#' @return
-#' @details
+#' @param empROC \code{data.frame} with true positive (TPR) and false positive
+#'   (FPR) values of the empirical ROC curve, sorted by increasing FPR and TPR.
+#' @param MDE_info \code{list} containing information about the required minimum
+#'   distance estimation (MDE) fit. Entries are \code{method} and \code{info}.
+#'
+#' @return Returns a list with initially estimated parameters and corresponding
+#'   L2 distance and the final estimated parameters as well as the associated L2
+#'   distance
+#' @details \code{fit_MDE} relies on optimization of the L2 distance to estimate
+#'   the optimal parameters of a parametric ROC curve model.
+#'
 fit_MDE <- function(empROC, MDE_info){
 
   if(missing(empROC)) stop("no empirical ROC curve provided")
