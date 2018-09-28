@@ -95,13 +95,13 @@ get_TPR_beta3p_h <- function(FPR, pars){
   ifelse(FPR >= pars[3], 1, get_TPR_beta2p(FPR/pars[3], pars[1:2]))
 }
 get_TPR_beta4p <- function(FPR, pars){
-  ifelse(FPR >= pars[3], 1, get_TPR_beta2p(FPR/pars[3], pars[-3]))
+  ifelse(FPR >= pars[4], 1, get_TPR_beta3p_v(FPR/pars[4], pars[-4]))
 }
 get_TPR_bin2p <- function(FPR, pars){
   pnorm(pars[1] + pars[2] * qnorm(FPR))
 }
 get_TPR_bin3p <- function(FPR, pars){
-  par[3] + (1-par[3]) * get_TPR_bin2p(FPR, pars[1:2])
+  pars[3] + (1-pars[3]) * get_TPR_bin2p(FPR, pars[1:2])
 }
 
 #' Checks if a ROC curve is concave

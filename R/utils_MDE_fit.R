@@ -14,11 +14,12 @@
 #' @details \code{fit_MDE} relies on optimization of the L2 distance to estimate
 #'   the optimal parameters of a parametric ROC curve model.
 #'
-fit_MDE <- function(empROC, MDE_info){
+fit_MDE <- function(empROC, MDE_info, maxit){
 
   if(missing(empROC)) stop("no empirical ROC curve provided")
   if(missing(MDE_info)) stop("no information about MDE fit provided")
   if(all(MDE_info$method == "empirical")) return(NULL)
+  if(missing(maxit)) maxit <- 50
 
   pars_init <- fit_initial_pars(empROC, MDE_info)
 
@@ -31,7 +32,7 @@ fit_MDE <- function(empROC, MDE_info){
     MDE_info = MDE_info,
     pencon   = TRUE,
     method   = "BFGS",
-    control  = list(trace = FALSE)))
+    control  = list(trace = FALSE, maxit = maxit)))
 
   pars_fit <- est$par
   L2_fit <- L2dist_empROC_parROC(empROC, pars_fit, MDE_info, pencon = FALSE)
@@ -104,10 +105,23 @@ roc_sqe <- function(pars, empROC, MDE_info){
 }
 
 #' @inheritParams fit_initial_pars
-fit_ipar_gamma <- function(empROC) max(empROC$TPR[empROC$FPR == 0])
+fit_ipar_gamma <- function(empROC){
+  if(sum(empROC$FPR == 0) > 0){
+    max(empROC$TPR[empROC$FPR == 0])
+  }else{
+    0
+  }
+}
 
 #' @inheritParams fit_initial_pars
-fit_ipar_delta <- function(empROC) min(empROC$FPR[empROC$TPR == 1])
+fit_ipar_delta <- function(empROC){
+  if(sum(empROC$TPR == 1) > 0){
+    min(empROC$FPR[empROC$TPR == 1])
+  }else{
+    1
+  }
+}
+
 
 #' Shifts beta parameters into the triangular region corresponding to concave
 #' beta ROC curves
@@ -277,8 +291,6 @@ check_consider <- function(x, MDE_info){
   if(any(grepl("bin", MDE_info$method))){
     con <- x %>% tibble::add_column(consider = TRUE)
   }else{
-    cat("USE case_when and check simplification as well as correctness")
-
     concave <- (MDE_info$info == "concave")
     con <- x %>% tibble::add_column(consider = NA) %>%
       mutate(consider = ifelse(d1 > 0 & d2 < 0, TRUE, consider)) %>%
@@ -291,7 +303,6 @@ check_consider <- function(x, MDE_info){
       mutate(consider = ifelse(d1 > 0 & d2 > 0 & m == 0, FALSE, consider)) %>%
       mutate(consider = ifelse(d1 > 0 & d2 > 0 & s2 <= m & concave, FALSE, consider)) %>%
       mutate(consider = ifelse(d1 > 0 & d2 > 0 & (s2-m)*(FPR1-FPR0) < d2 & concave, FALSE, consider))
-
   }
   return(con)
 }
@@ -302,6 +313,11 @@ check_consider <- function(x, MDE_info){
 #' @param intersect
 #' @inheritParams roc_intersection
 add_zeroes <- function(x, intersect, pars, MDE_info){
+
+  save(x, intersect, pars, MDE_info,
+      file = "tests/testdata.Rdata")
+
+  if(length(intersect) == 0) return(x)
 
   x_add <- tibble()
   r_del <- NULL

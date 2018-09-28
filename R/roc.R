@@ -79,3 +79,15 @@ print("PLOTS EINFUEGEN")
 print("STATISTICAL TESTS EINFUEGEN")
 print("UNIT TESTS EINFUEGEN")
 
+
+as.data.frame.roc <- function(x, type){
+  availtypes <- c("obsforc", "roc")
+  if(missing(type)) type <- "roc"
+  type <- match.arg(type, availtypes)
+  df <- if(type == "obsforc"){
+    as.data.frame(x$model.frame)
+  }else{
+    as.data.frame(x$empROC)
+  }
+  return(df)
+}

@@ -60,6 +60,16 @@ linint_empROC <- function(FPR, empROC){
 linslope  <- function(y2, y1, x2, x1) as.numeric((y2-y1)/(x2-x1))
 linint    <- function(y, x, m) as.numeric(y - x * m)
 
+#' Removes the attribute terms from a model.frame
+#'
+#' @param mf Model frame
+#' @return Returns a data.frame
+rm_attribute_terms <- function(mf){
+  if(!is.null(attributes(mf)$terms)) attr(mf, "terms") <- NULL
+  return(mf)
+}
+
+
 
 
 

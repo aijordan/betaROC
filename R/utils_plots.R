@@ -251,7 +251,6 @@ plot_binormal <- function(pars, MDE_info, p, lty, lwd){
   TPR <- get_TPR(FPR, pars, MDE_info)
   tib <-   tib <- tibble(FPR = c(0, FPR, 1), TPR = c(0, TPR, 1))
 
-
   bininfo <- paste0(round(pars, 1), collapse = "; ")
   subtitle <- paste0("Binormal parameters (", bininfo, ")")
 
