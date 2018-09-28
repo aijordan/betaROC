@@ -215,7 +215,7 @@ plot_beta <- function(pars, MDE_info, p, lty, lwd){
   color <- "#377EB8"
   FPR <- seq(0, 1, by = 0.005)
   TPR <- get_TPR(FPR, pars, MDE_info)
-  tib <- tibble(FPR = FPR, TPR = TPR)
+  tib <- tibble(FPR = c(0, FPR, 1), TPR = c(0, TPR, 1))
 
   betainfo <- paste0(round(pars, 1), collapse = "; ")
   subtitle <- paste0("Beta parameters (", betainfo, ")")
@@ -249,7 +249,8 @@ plot_binormal <- function(pars, MDE_info, p, lty, lwd){
   color <- "#377EB8"
   FPR <- seq(0, 1, by = 0.005)
   TPR <- get_TPR(FPR, pars, MDE_info)
-  tib <- tibble(FPR = FPR, TPR = TPR)
+  tib <-   tib <- tibble(FPR = c(0, FPR, 1), TPR = c(0, TPR, 1))
+
 
   bininfo <- paste0(round(pars, 1), collapse = "; ")
   subtitle <- paste0("Binormal parameters (", bininfo, ")")
