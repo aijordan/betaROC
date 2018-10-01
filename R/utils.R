@@ -69,7 +69,31 @@ rm_attribute_terms <- function(mf){
   return(mf)
 }
 
+#' Checks pairedness of two ROC curves
+#'
+#' @inheritParams roc.test
+#' @details Evaluates based on the observations used for creating the two
+#'   \code{roc} curves if they are paired. This is based on the observation
+#'   vector and therefore sensitive to reordering of the forecast-observation
+#'   pairs used in constructing the \code{roc} curves.
+check_paired <- function(roc1, roc2){
 
+  if(missing(roc1) | missing(roc2))
+    stop("two roc curves are to be provided for pairedness check")
+
+  obs1 <- roc1$model.frame$obs
+  obs2 <- roc2$model.frame$obs
+
+  if(length(obs1) != length(obs2)){
+    return(FALSE)
+  }else{
+    if(any(!(obs1 == obs2))){
+      return(FALSE)
+    }else{
+      return(TRUE)
+    }
+  }
+}
 
 
 
