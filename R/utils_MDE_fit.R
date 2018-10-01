@@ -72,13 +72,32 @@ fit_initial_pars <- function(empROC, MDE_info){
   if("beta2p_h" %in% MDEm) pars <- c(1,1,delta)
   if("beta4p" %in% MDEm) pars <- c(1,1,gamma,delta)
 
-  est <- try(optim(
-    par      = pars,
-    fn       = roc_sqe,
-    empROC   = empROC,
-    MDE_info = MDE_info
-  ))
-  pars <- est$par
+  if("bin2p" %in% MDEm & MDEi == "concave"){
+    est <- try(optim(
+      par      = pars,
+      fn       = roc_sqe,
+      empROC   = empROC,
+      MDE_info = MDE_info,
+      method   = ifelse("bin2p" %in% MDEm & MDEi == "concave", "Brent", "BFGS"),
+      lower    = 0,
+      upper    = 10,
+      control  = list(trace = TRUE)
+    ))
+  }else{
+    est <- try(optim(
+      par      = pars,
+      fn       = roc_sqe,
+      empROC   = empROC,
+      MDE_info = MDE_info,
+      method   = "BFGS"
+    ))
+  }
+
+  if("bin2p" %in% MDEm & MDEi == "concave"){
+    pars <- c(est$par, 1)
+  }else{
+    pars <- est$par
+  }
 
   if(any(grepl("beta", MDEm)) & MDEi == "concave")
     pars <- shift_ipar_beta(pars, MDE_info)
@@ -100,7 +119,7 @@ roc_sqe <- function(pars, empROC, MDE_info){
   if(any(grepl("bin", MDEm)) & MDEi == "concave") pars <- c(pars[1], 1, pars[-1])
 
   TPR <- get_TPR(empROC$FPR, pars, MDE_info)
-  sqe <- sum((TPR - empROC$TPR)^2)
+  sqe <- mean((TPR - empROC$TPR)^2)
   return(sqe)
 }
 
@@ -137,7 +156,7 @@ shift_ipar_beta <- function(pars, MDE_info, eps = 0.1){
   sepline <- function(x) 3.41-2.41*x
   seplineinv <- function(y) (3.41-y)/2.41
 
-  if(grepl("beta", MDE_info$method) & MDE_info$info == "concave"){
+  if(any(grepl("beta", MDE_info$method)) & MDE_info$info == "concave"){
 
     s_x <- 1-eps/2.41
     s_y <- sepline(s_x)
@@ -469,8 +488,8 @@ get_correctionfactor <- function(pars, MDE_info){
   MDEi <- MDE_info$info
   if(MDEi == "unrestricted") return(1)
   if(MDEi == "concave"){
-    if(grepl("bin", MDEm)) corfac <- 1 + 10^2*(pars[2]-1)^2
-    if(grepl("beta", MDEm)){
+    if(any(grepl("bin", MDEm))) corfac <- 1 + 10^2*(pars[2]-1)^2
+    if(any(grepl("beta", MDEm))){
       corfac <- 1 + 10^2 * get_distance_to_beta_concave_region(pars)
     }
   }
@@ -485,18 +504,18 @@ get_correctionincrement <- function(pars, MDE_info){
   MDEi <- MDE_info$info
   if(MDEi == "unrestricted") return(0)
   if(MDEi == "concave"){
-    if(MDEm == "bin2p") corincr <- (pars[2] != 1)
-    if(MDEm == "bin3p") corincr <- (pars2 != 1 | pars[3] < 0 | pars[3] > 1)
-    if(grepl("beta", MDEm)){
+    if(MDEm[1] == "bin2p") corincr <- (pars[2] != 1)
+    if(MDEm[1] == "bin3p") corincr <- (pars2 != 1 | pars[3] < 0 | pars[3] > 1)
+    if(any(grepl("beta", MDEm))){
       alpha <- (pars[1] < 0 | pars[1] > 1)
       beta  <- (sum(pars[1:2]) < 2 | pars[2] < 0)
 
-      if(MDEm == "beta2p") corincr <- max(alpha, beta)
-      if(grepl("beta3p", MDEm)){
+      if(MDEm[1] == "beta2p") corincr <- max(alpha, beta)
+      if(any(grepl("beta3p", MDEm))){
         third <- (pars[3] < 0 | pars[3] > 1)
         corincr <- max(alpha, beta, third)
       }
-      if("MDEm" == "beta4p"){
+      if("MDEm"[1] == "beta4p"){
         gamma <- (pars[3] < 0 | pars[3] > 1)
         delta <- (pars[4] < 0 | pars[4] > 1)
         corincr <- max(alpha, beta, gamma, delta)
