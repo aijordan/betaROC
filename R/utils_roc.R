@@ -95,13 +95,13 @@ get_TPR_beta3p_h <- function(FPR, pars){
   ifelse(FPR >= pars[3], 1, get_TPR_beta2p(FPR/pars[3], pars[1:2]))
 }
 get_TPR_beta4p <- function(FPR, pars){
-  ifelse(FPR >= pars[3], 1, get_TPR_beta2p(FPR/pars[3], pars[-3]))
+  ifelse(FPR >= pars[4], 1, get_TPR_beta3p_v(FPR/pars[4], pars[-4]))
 }
 get_TPR_bin2p <- function(FPR, pars){
   pnorm(pars[1] + pars[2] * qnorm(FPR))
 }
 get_TPR_bin3p <- function(FPR, pars){
-  par[3] + (1-par[3]) * get_TPR_bin2p(FPR, pars[1:2])
+  pars[3] + (1-pars[3]) * get_TPR_bin2p(FPR, pars[1:2])
 }
 
 #' Checks if a ROC curve is concave
@@ -207,6 +207,108 @@ check_empROCsect <- function(x){
   }
 }
 
+#' Checks if a ROC curve is concave
+#'
+#' @param empROC optional; in case an empirical ROC curve is provided, it is
+#'   check for concavity
+#' @param pars optional;
+#' @param MDE_info optional;
+#'
+#' @return Logical vector of length one indicating if the ROC curve provided as
+#'   empirical or parametric form is concave
+#' @details TBD
+#'
+check_roc_concave <- function(empROC, pars, MDE_info){
+
+  if(missing(empROC) & (missing(pars) | missing(MDE_info))){
+    stop("In case of an empiric ROC curve, specify empROC. In case of a
+         parametric ROC curve specify pars and MDE_info")
+  }else{
+    if(missing(empROC)){
+      # parametric ROC curve provided
+      concave <- check_roc_concave_parametric(pars, MDE_info)
+    }else{
+      # empROC provided
+      concave <- check_roc_concave_empirical(empROC)
+    }
+  }
+  return(concave)
+}
+
+#' Checks if an empirical ROC curve is concave
+#'
+#' @param empROC ...
+#'
+#' @return Logical vector of length one indicating if the ROC curve provided as
+#'   empirical or parametric form is concave
+#' @details TBD
+#'
+check_roc_concave_empirical <- function(empROC){
+  stop("TBD")
+}
+
+#' Checks if a parametric ROC curve is concave
+#'
+#' @param pars
+#' @param MDE_info
+#'
+#' @return Logical vector of length one indicating if the ROC curve provided as
+#'   empirical or parametric form is concave
+#' @details TBD
+#'
+check_roc_concave_parametric <- function(par, MDE_info){
+  stop("TBD")
+}
+
+#' ...
+#'
+#' @param ...
+#' @param ...
+#'
+#' @return TBD
+#' @details TBD
+#'
+interval_roc <- function(x){
+  if(any(!(c("FPR", "TPR") %in% names(x)))) stop("Missing FPR or TPR")
+  x <- x %>% select(FPR, TPR)
+  empROCl <- x %>% group_by(FPR) %>% arrange(TPR) %>% slice(1) %>% ungroup()
+  empROCu <- x %>% group_by(FPR) %>% arrange(desc(TPR)) %>% slice(1) %>% ungroup()
+  empROCsect <- bind_cols(empROCu[-nrow(empROCu), ], empROCl[-1, ])
+  empROCsect <- empROCsect %>% dplyr::select(FPR0 = FPR, TPR0 = TPR, everything())
+  return(empROCsect)
+}
+
+#' ...
+#'
+#' @param ...
+#' @param ...
+#'
+#' @return TBD
+#' @details TBD
+#'
+add_slope_empROC <- function(x){
+  empROCsect <- check_empROCsect(x) %>%
+    mutate(m = linslope(y2 = TPR1, y1 = TPR0, x2 = FPR1, x1 = FPR0),
+           b = linint(y = TPR1, x = FPR1, m = m))
+  return(empROCsect)
+}
+
+
+#' ...
+#'
+#' @param ...
+#' @param ...
+#'
+#' @return TBD
+#' @details TBD
+#'
+check_empROCsect <- function(x){
+  if(all(c("FPR0", "TPR0", "FPR1", "TPR1") %in% names(x))){
+    return(x)
+  }else{
+    return(interval_roc(x))
+  }
+}
 
 #' ...
 #'
