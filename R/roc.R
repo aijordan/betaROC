@@ -79,6 +79,8 @@ print("PLOTS EINFUEGEN")
 print("STATISTICAL TESTS EINFUEGEN")
 print("UNIT TESTS EINFUEGEN")
 
+print("DATA SETS EINFUEGEN")
+print("UEBERSICHT TESTS - EXISTIEREND UND FEHLEND - EINFUEGEN")
 
 as.data.frame.roc <- function(x, type){
   availtypes <- c("obsforc", "roc")
