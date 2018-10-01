@@ -57,6 +57,9 @@ linint_empROC <- function(FPR, empROC){
   return(c("FPR" = FPR, "TPR" = TPR))
 }
 
+linslope  <- function(y2, y1, x2, x1) as.numeric((y2-y1)/(x2-x1))
+linint    <- function(y, x, m) as.numeric(y - x * m)
+
 
 
 
