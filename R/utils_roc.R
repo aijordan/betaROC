@@ -24,7 +24,7 @@ roc_empirical <- function(mf, emp_info){
     }
   }
 
-  mf <- mf[order(mf$forc), ]
+  mf <- mf[rev(order(mf$forc)), ]
 
   empROC <- NULL
 
