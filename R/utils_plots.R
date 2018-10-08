@@ -7,42 +7,35 @@
 #'
 #' @return The output is the same plot but with left-aligned caption and a
 #'  subtitle if provided
-align_caption <- function(p, caption = NULL, subtitle = NULL){
+leftalign_caption <- function(p, ...){
 
-  if(is.null(subtitle)){
-    p <- p + ggtitle(label = "")
-    p <- cowplot::ggdraw(p) +
-      cowplot::draw_text(
-        text = caption,
-        x = 0.01,
-        y = 0.995,
-        hjust = 0,
-        vjust = 1,
-        size = 22)
+  if(missing(p)) stop("Please provide a plot")
+  if(!exists("caption")) caption <- NULL
+  if(!exists("subtitle")) subtitle <- NULL
+
+  if(is.null(caption) & is.null(subtitle)) return(p)
+
+  if(requireNamespace("cowplot", quietly = TRUE)){
+    if(is.null(subtitle)){
+      p <- p + ggtitle(label = "")
+      p <- ggdraw(p) + draw_text(text = caption, x = 0.01, y = 0.995, hjust = 0, vjust = 1, size = 22)
+    }else{
+      p <- p + ggtitle(label = "", subtitle = "")
+      p <- ggdraw(p) + draw_text(text = caption, x = 0.01, y = 0.98, hjust = 0, vjust = 1, size = 22)
+      p <- ggdraw(p) + draw_text(text = subtitle, x = 0.01, y = 0.91, hjust = 0, vjust = 1, size = 16)
+    }
   }else{
-    p <- p + ggtitle(label = "", subtitle = "")
-
-    p <- cowplot::ggdraw(p) +
-      cowplot::draw_text(
-        text = caption,
-        x = 0.01,
-        y = 0.98,
-        hjust = 0,
-        vjust = 1,
-        size = 22)
-
-    p <- cowplot::ggdraw(p) +
-      cowplot::draw_text(
-        text = subtitle,
-        x = 0.01,
-        y = 0.91,
-        hjust = 0,
-        vjust = 1,
-        size = 16)
+    phistogramm <- phistogramm + ggtitle(label = caption, subtitle = subtitle)
   }
 
   return(p)
 }
+
+get_subtit_samplesize <- function(n, nmove)
+  paste0(paste0(rep(" ", nmove - nchar(n) + 10), collapse = ""), "n = ", n)
+
+
+
 
 #' S3 method for \code{roc} object
 #'
@@ -58,54 +51,51 @@ align_caption <- function(p, caption = NULL, subtitle = NULL){
 #'
 plot.roc <- function(x, which, ...) {
 
-  avail <- c("histogramm", "empirical", "fit", "roc_uncertainty",
+  availplots <- c("histogramm", "empirical", "fit", "roc_uncertainty",
              "parameter_uncertainty")
 
-  if ( missing(which) ) {
-    create <- avail
-  } else if ( inherits(which, c("integer", "numeric")) ) {
-    if ( any(which > length(avail)) | any(which <= 0) )
-      stop(sprintf(paste("Wrong input for argument \"which\",",
-                         "has to be between 0 and %d", length(avail))))
-    create <- avail[which]
-  } else {
-    create <- as.character(sapply(which, function(x, avail)
-      match.arg(x, avail), avail = avail))
+  if(missing(which)){
+    create <- availplots
+  }else{
+    if(inherits(which, c("integer", "numeric"))){
+      if(any(which > length(availplots)) | any(which <= 0)){
+        stop(sprintf(paste("Wrong input for argument \"which\",",
+                           "has to be between 0 and %d", length(availplots))))
+        }
+      create <- availplots[which]
+    }else{
+      create <- as.character(sapply(which, function(x, availplots) match.arg(x, availplots), avail = availplots))
+    }
   }
 
-  hold <- par(no.readonly = TRUE); on.exit(par(hold))
+  plotlist <- list()
+  plotcounter <- 1
 
-  if ( length(create) > 1 ) par(ask = TRUE)
-
-  if ( "empirical" %in% create ) {
-
-    ggplot() +
-      geom_line(data = x$empROC %>% as.tibble, aes(x = FPR, y = TPR))
-
+  if("empirical" %in% create){
+    plotlist[[plotcounter]] <- plot_roc_empirical(x, ...)
+    plotcounter <- plotcounter + 1
   }
 
-  if ( "histogramm" %in% create ) {
-    plot_roc_histogramm(x, ...)
+  if("histogramm" %in% create){
+    plotlist[[plotcounter]] <- plot_roc_histogramm(x, ...)
+    plotcounter <- plotcounter + 1
   }
 
-  if ( "fit" %in% create ) {
-
+  if("fit" %in% create){
     cat("ANDERE METHODE ALS NUR EMPIRICAL VORHANDEN")
-
   }
 
-  if ( "roc_uncertainty" %in% create ) {
-
+  if("roc_uncertainty" %in% create){
     cat("ANDERE METHODE ALS NUR EMPIRICAL VORHANDEN")
-
   }
 
-  if ( "parameter_uncertainty" %in% create ) {
-
+  if("parameter_uncertainty" %in% create){
     cat("ANDERE METHODE ALS NUR EMPIRICAL VORHANDEN")
-
   }
+
+  return(plotlist)
 }
+
 
 
 #' Histogramm and support plot for \code{roc} objects
@@ -115,22 +105,15 @@ plot.roc <- function(x, which, ...) {
 #' @details
 plot_roc_histogramm <- function(x, ...){
 
-  color <- c("#E41A1C", "#377EB8")
-
-  # if(requireNamespace("RColorBrewer", quietly = TRUE)){
-  #   color <- RColorBrewer::brewer.pal(n = 8, name = "Set1")
-  # }else{
-  #   color <- c("red", "blue")
-  # }
-
   obsforc_df  <- as.data.frame.roc(x, type = "obsforc") %>% as.tibble()
   obsforc_df0 <- obsforc_df %>% filter(obs == 0)
   obsforc_df1 <- obsforc_df %>% filter(obs == 1)
 
-  xlim <- c(min(obsforc_df$forc), max(obsforc_df$forc))
-  breaks <- seq(xlim[1], xlim[2], length.out = 31)
-
-  ylim <- c(-1, 1)
+  if(!exists("predictor")) predictor <- ""
+  if(!is.numeric("ylim")) ylim <- c(-1, 1)
+  if(!exists("color")) color <- c("#E41A1C", "#377EB8")
+  if(!is.numeric("xlim")) xlim <- c(min(obsforc_df$forc), max(obsforc_df$forc))
+  if(!exists("breaks")) breaks <- seq(xlim[1], xlim[2], length.out = 31)
 
   line_vals <- obsforc_df %>%
     group_by(obs) %>%
@@ -152,7 +135,7 @@ plot_roc_histogramm <- function(x, ...){
     scale_color_manual(values = color[1:2]) +
 
     geom_hline(yintercept = 0) +
-    xlab(xlabs) + ylab("") + ggtitle("", subtitle = "") +
+    xlab(predictor) + ylab("") + ggtitle("", subtitle = "") +
     theme(legend.position = "none") +
     scale_fill_manual(name = "Observation", values = colors[1:2]) +
 
@@ -164,24 +147,24 @@ plot_roc_histogramm <- function(x, ...){
     coord_cartesian(ylim = ylim) +
 
     annotate("text", x = xlim[1] + 0.95 * diff(xlim), y = ylim[1] + 0.1 * diff(ylim),
-             label = "F[0]", size = 7, col = colors[1], parse = TRUE) +
+             label = "F[0]", size = 7, col = color[1], parse = TRUE) +
 
     annotate("text", x = xlim[1] + 0.95 * diff(xlim), y = ylim[1] + 0.9 * diff(ylim),
-             label = "F[1]", size = 7, col = colors[2], parse = TRUE)
+             label = "F[1]", size = 7, col = color[2], parse = TRUE) +
 
-  phistogramm <- move_caption_afterwards(p = phistogramm, caption = caption, subtit = subtit)
+    theme_minimal() + theme(legend.position = "none")
 
+  phistogramm  <- leftalign_caption(phistogramm, ...)
 
+  return(phistogramm)
 }
 
-
-
-
-
-
-
-
-
+plot_roc_empirical <- function(x, ...){
+  p <- ggplot() +
+    geom_line(data = x$empROC %>% as.tibble, aes(x = FPR, y = TPR)) +
+    theme_minimal()
+  return(p)
+}
 
 
 
