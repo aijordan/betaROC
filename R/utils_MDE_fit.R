@@ -501,6 +501,11 @@ test_for_zeroes <- function(x, pars, MDE_info){
 #'   This option is essential for concave MDE estimation (see ...s)
 #' @inheritParams roc_intersection
 L2dist_empROC_parROC <- function(empROC, pars, MDE_info, pencon){
+
+  if(any(pars[1:2] <= 0)) return(1)
+  if(length(pars) >= 3 & (pars[3] < 0  | pars[3] > 1)) return(1)
+  if(length(pars) >= 4 & (pars[4] < 0  | pars[4] > 1)) return(1)
+
   allowednames <- c("FPR0", "TPR0", "FPR1", "TPR1", "m", "b")
   empROCsect <- roc_intersection(empROC, pars, MDE_info)
   if(any(!(names(empROCsect)[1:6] == allowednames))) stop("wrong names der. obj.")
@@ -517,6 +522,11 @@ L2dist_empROC_parROC <- function(empROC, pars, MDE_info, pencon){
 #' @param x ...
 #' @inheritParams roc_intersection
 integratediff <- function(x, pars, MDE_info){
+
+  if(any(pars[1:2] <= 0)) return(1)
+  if(length(pars) >= 3 & (pars[3] < 0  | pars[3] > 1)) return(1)
+  if(length(pars) >= 4 & (pars[4] < 0  | pars[4] > 1)) return(1)
+
   diffint2 <- function(y) diff_empROC_parROC(y, x[5], x[6], pars, MDE_info)^2
   intres  <- integrate(f = diffint2, lower = x[1], upper = x[3])
   return(intres$value)

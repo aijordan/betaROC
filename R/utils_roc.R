@@ -393,6 +393,9 @@ add_diff_empROC_parROC <- function(x, pars, MDE_info){
 #' @details TBD
 #'
 diff_empROC_parROC <- function(FPR, m, b, pars, MDE_info){
+  if(any(pars[1:2] <= 0)) return(1)
+  if(length(pars) >= 3 & (pars[3] < 0  | pars[3] > 1)) return(1)
+  if(length(pars) >= 4 & (pars[4] < 0  | pars[4] > 1)) return(1)
   get_TPR(FPR, pars, MDE_info) - (m * FPR + b)
 }
 
