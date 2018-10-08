@@ -118,6 +118,10 @@ roc_sqe <- function(pars, empROC, MDE_info){
   MDEi <- MDE_info$info
   if(any(grepl("bin", MDEm)) & MDEi == "concave") pars <- c(pars[1], 1, pars[-1])
 
+  if(any(pars[1:2] <= 0)) return(1)
+  if(length(pars) >= 3 & (pars[3] < 0  | pars[3] > 1)) return(1)
+  if(length(pars) >= 4 & (pars[4] < 0  | pars[4] > 1)) return(1)
+
   TPR <- get_TPR(empROC$FPR, pars, MDE_info)
   sqe <- mean((TPR - empROC$TPR)^2)
   return(sqe)
