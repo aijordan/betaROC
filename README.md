@@ -22,4 +22,4 @@ The betaROC repository contains:
 
 Gneiting T, Vogel P (2021). Receiver Operating Characteristic (ROC) Curves:
 Equivalences, Beta Model, and Minimum Distance Estimation. Preprint
-[https://arxiv.org/abs/1809.04808](arXiv:1809.04808).
+[arXiv:1809.04808](https://arxiv.org/abs/1809.04808).
