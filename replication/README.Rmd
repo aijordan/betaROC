@@ -1,0 +1,282 @@
+---
+title: "Replication material: Gneiting and Vogel (2021)"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(devtools)
+load_all()
+
+data("aSAH_Robin")
+data("hiv_Sing")
+data("PSA_Etzioni")
+data("WS_Vogel")
+```
+
+```{r}
+empROC <- lapply(
+  list(aSAH_Robin, hiv_Sing, PSA_Etzioni, WS_Vogel),
+  function(x) {
+    roc(obs ~ forc, x)
+  })
+
+MDE_info <- list(
+  list(method = "bin2p", info = "unrestricted"),
+  list(method = "bin2p", info = "concave"),
+  list(method = "beta2p", info = "unrestricted"),
+  list(method = "beta2p", info = "concave")
+)
+
+df <- tibble(
+  study = rep(c("Robin", "Sing", "Etzioni", "Vogel"), each = 4),
+  empROC = rep(empROC, each = 4),
+  MDE_info = rep(MDE_info, times = 4)
+) %>%
+  mutate(
+    params = map2(empROC, MDE_info, fit_MDE)
+  )
+
+```
+
+### Etzioni et al. (1999)
+
+Prostate cancer antigen ratio, 116 observations
+
+```{r warning = FALSE}
+df_Etzioni <- filter(df, study == "Etzioni")
+
+with(df_Etzioni, {
+  c(
+    sprintf("Binormal model - unrestricted"),
+    sprintf("Parameters (mu, sigma):     (%.2f, %.2f)",
+            params[[1]]$pars_fit[1],
+            params[[1]]$pars_fit[2]
+    ),
+    sprintf("L2-distance:                 %.3f",
+            params[[1]]$L2_fit),
+    
+    sprintf("Binormal model - concave"),
+    sprintf("Parameters (mu, sigma):     (%.2f, %.2f)",
+            params[[2]]$pars_fit[1],
+            params[[2]]$pars_fit[2]
+    ),
+    sprintf("L2-distance:                 %.3f",
+            params[[2]]$L2_fit),
+    
+    sprintf("Beta model - unrestricted"),
+    sprintf("Parameters (alpha, beta):   (%.2f, %.2f)",
+            params[[3]]$pars_fit[1],
+            params[[3]]$pars_fit[2]
+    ),
+    sprintf("L2-distance:                 %.3f",
+            params[[3]]$L2_fit),
+    
+    sprintf("Binormal model - concave"),
+    sprintf("Parameters (alpha, beta):   (%.2f, %.2f)",
+            params[[4]]$pars_fit[1],
+            params[[4]]$pars_fit[2]
+    ),
+    sprintf("L2-distance:                 %.3f",
+            params[[4]]$L2_fit)
+  )
+}) %>%
+  cat(sep = "\n")
+
+with(df_Etzioni, {
+  p <- plot_roc_empirical(empROC[[1]])
+  p <- plot_binormal(params[[1]]$pars_fit, MDE_info[[1]], p, color = "red")
+  p <- plot_binormal(params[[2]]$pars_fit, MDE_info[[2]], p, lty = 2, color = "red")
+  p <- plot_beta(params[[3]]$pars_fit, MDE_info[[3]], p, color = "blue")
+  p <- plot_beta(params[[4]]$pars_fit, MDE_info[[4]], p, lty = 2, color = "blue")
+  p +
+    theme(aspect.ratio = 1) +
+    geom_segment(mapping = aes(x = 0, xend = 1, y = 0, yend = 1), lty = 2)
+})
+
+```
+
+Empirical (black), fitted binormal (red) and fitted beta (blue) ROC curves in the unrestricted (solid) and concave (dashed) case.
+
+
+### Sing et al. (2005)
+
+Coreceptor usage SVM predictor, 3450 observations
+
+```{r echo = FALSE}
+df_Sing <- filter(df, study == "Sing")
+
+with(df_Sing, {
+  c(
+    sprintf("Binormal model - unrestricted"),
+    sprintf("Parameters (mu, sigma):     (%.2f, %.2f)",
+            params[[1]]$pars_fit[1],
+            params[[1]]$pars_fit[2]
+    ),
+    sprintf("L2-distance:                 %.3f",
+            params[[1]]$L2_fit),
+    
+    sprintf("Binormal model - concave"),
+    sprintf("Parameters (mu, sigma):     (%.2f, %.2f)",
+            params[[2]]$pars_fit[1],
+            params[[2]]$pars_fit[2]
+    ),
+    sprintf("L2-distance:                 %.3f",
+            params[[2]]$L2_fit),
+    
+    sprintf("Beta model - unrestricted"),
+    sprintf("Parameters (alpha, beta):   (%.2f, %.2f)",
+            params[[3]]$pars_fit[1],
+            params[[3]]$pars_fit[2]
+    ),
+    sprintf("L2-distance:                 %.3f",
+            params[[3]]$L2_fit),
+    
+    sprintf("Binormal model - concave"),
+    sprintf("Parameters (alpha, beta):   (%.2f, %.2f)",
+            params[[4]]$pars_fit[1],
+            params[[4]]$pars_fit[2]
+    ),
+    sprintf("L2-distance:                 %.3f",
+            params[[4]]$L2_fit)
+  )
+}) %>%
+  cat(sep = "\n")
+
+with(df_Sing, {
+  p <- plot_roc_empirical(empROC[[1]])
+  p <- plot_binormal(params[[1]]$pars_fit, MDE_info[[1]], p, color = "red")
+  p <- plot_binormal(params[[2]]$pars_fit, MDE_info[[2]], p, lty = 2, color = "red")
+  p <- plot_beta(params[[3]]$pars_fit, MDE_info[[3]], p, color = "blue")
+  p <- plot_beta(params[[4]]$pars_fit, MDE_info[[4]], p, lty = 2, color = "blue")
+  p +
+    theme(aspect.ratio = 1) +
+    geom_segment(mapping = aes(x = 0, xend = 1, y = 0, yend = 1), lty = 2)
+})
+
+```
+
+Empirical (black), fitted binormal (red) and fitted beta (blue) ROC curves in the unrestricted (solid) and concave (dashed) case.
+
+### Robin et al. (2011)
+
+Clinical outcome S100$\beta$ concentration, 113 observations
+
+```{r echo = FALSE}
+df_Robin <- filter(df, study == "Robin")
+
+with(df_Robin, {
+  c(
+    sprintf("Binormal model - unrestricted"),
+    sprintf("Parameters (mu, sigma):     (%.2f, %.2f)",
+            params[[1]]$pars_fit[1],
+            params[[1]]$pars_fit[2]
+    ),
+    sprintf("L2-distance:                 %.3f",
+            params[[1]]$L2_fit),
+    
+    sprintf("Binormal model - concave"),
+    sprintf("Parameters (mu, sigma):     (%.2f, %.2f)",
+            params[[2]]$pars_fit[1],
+            params[[2]]$pars_fit[2]
+    ),
+    sprintf("L2-distance:                 %.3f",
+            params[[2]]$L2_fit),
+    
+    sprintf("Beta model - unrestricted"),
+    sprintf("Parameters (alpha, beta):   (%.2f, %.2f)",
+            params[[3]]$pars_fit[1],
+            params[[3]]$pars_fit[2]
+    ),
+    sprintf("L2-distance:                 %.3f",
+            params[[3]]$L2_fit),
+    
+    sprintf("Binormal model - concave"),
+    sprintf("Parameters (alpha, beta):   (%.2f, %.2f)",
+            params[[4]]$pars_fit[1],
+            params[[4]]$pars_fit[2]
+    ),
+    sprintf("L2-distance:                 %.3f",
+            params[[4]]$L2_fit)
+  )
+}) %>%
+  cat(sep = "\n")
+
+with(df_Robin, {
+  p <- plot_roc_empirical(empROC[[1]])
+  p <- plot_binormal(params[[1]]$pars_fit, MDE_info[[1]], p, color = "red")
+  p <- plot_binormal(params[[2]]$pars_fit, MDE_info[[2]], p, lty = 2, color = "red")
+  p <- plot_beta(params[[3]]$pars_fit, MDE_info[[3]], p, color = "blue")
+  p <- plot_beta(params[[4]]$pars_fit, MDE_info[[4]], p, lty = 2, color = "blue")
+  p +
+    theme(aspect.ratio = 1) +
+    geom_segment(mapping = aes(x = 0, xend = 1, y = 0, yend = 1), lty = 2)
+})
+
+```
+
+Empirical (black), fitted binormal (red) and fitted beta (blue) ROC curves in the unrestricted (solid) and concave (dashed) case.
+
+
+### Vogel et al. (2018)
+
+Precipitation NWP forecast, 5449 observations
+
+```{r echo = FALSE}
+df_Vogel <- filter(df, study == "Vogel")
+
+with(df_Vogel, {
+  c(
+    sprintf("Binormal model - unrestricted"),
+    sprintf("Parameters (mu, sigma):     (%.2f, %.2f)",
+            params[[1]]$pars_fit[1],
+            params[[1]]$pars_fit[2]
+    ),
+    sprintf("L2-distance:                 %.3f",
+            params[[1]]$L2_fit),
+    
+    sprintf("Binormal model - concave"),
+    sprintf("Parameters (mu, sigma):     (%.2f, %.2f)",
+            params[[2]]$pars_fit[1],
+            params[[2]]$pars_fit[2]
+    ),
+    sprintf("L2-distance:                 %.3f",
+            params[[2]]$L2_fit),
+    
+    sprintf("Beta model - unrestricted"),
+    sprintf("Parameters (alpha, beta):   (%.2f, %.2f)",
+            params[[3]]$pars_fit[1],
+            params[[3]]$pars_fit[2]
+    ),
+    sprintf("L2-distance:                 %.3f",
+            params[[3]]$L2_fit),
+    
+    sprintf("Binormal model - concave"),
+    sprintf("Parameters (alpha, beta):   (%.2f, %.2f)",
+            params[[4]]$pars_fit[1],
+            params[[4]]$pars_fit[2]
+    ),
+    sprintf("L2-distance:                 %.3f",
+            params[[4]]$L2_fit)
+  )
+}) %>%
+  cat(sep = "\n")
+
+with(df_Vogel, {
+  p <- plot_roc_empirical(empROC[[1]])
+  p <- plot_binormal(params[[1]]$pars_fit, MDE_info[[1]], p, color = "red")
+  p <- plot_binormal(params[[2]]$pars_fit, MDE_info[[2]], p, lty = 2, color = "red")
+  p <- plot_beta(params[[3]]$pars_fit, MDE_info[[3]], p, color = "blue")
+  p <- plot_beta(params[[4]]$pars_fit, MDE_info[[4]], p, lty = 2, color = "blue")
+  p +
+    theme(aspect.ratio = 1) +
+    geom_segment(mapping = aes(x = 0, xend = 1, y = 0, yend = 1), lty = 2)
+})
+
+```
+
+Empirical (black), fitted binormal (red) and fitted beta (blue) ROC curves in the unrestricted (solid) and concave (dashed) case.
