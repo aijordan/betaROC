@@ -7,15 +7,21 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+The following scripts replicate the results shown in Table 1 and Figure 1 from the study by Gneiting and Vogel (2021).
+
+Expected runtime (on an average notebook from 2018, i5-8250U CPU): approximately 10 minutes.
+
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
-library(devtools)
-load_all()
+
+devtools::load_all()
 
 data("aSAH_Robin")
 data("hiv_Sing")
 data("PSA_Etzioni")
 data("WS_Vogel")
+
+sessionInfo()
 ```
 
 ```{r}
@@ -76,7 +82,7 @@ with(df_Etzioni, {
     sprintf("L2-distance:                 %.3f",
             params[[3]]$L2_fit),
     
-    sprintf("Binormal model - concave"),
+    sprintf("Beta model - concave"),
     sprintf("Parameters (alpha, beta):   (%.2f, %.2f)",
             params[[4]]$pars_fit[1],
             params[[4]]$pars_fit[2]
@@ -136,7 +142,7 @@ with(df_Sing, {
     sprintf("L2-distance:                 %.3f",
             params[[3]]$L2_fit),
     
-    sprintf("Binormal model - concave"),
+    sprintf("Beta model - concave"),
     sprintf("Parameters (alpha, beta):   (%.2f, %.2f)",
             params[[4]]$pars_fit[1],
             params[[4]]$pars_fit[2]
@@ -195,7 +201,7 @@ with(df_Robin, {
     sprintf("L2-distance:                 %.3f",
             params[[3]]$L2_fit),
     
-    sprintf("Binormal model - concave"),
+    sprintf("Beta model - concave"),
     sprintf("Parameters (alpha, beta):   (%.2f, %.2f)",
             params[[4]]$pars_fit[1],
             params[[4]]$pars_fit[2]
@@ -255,7 +261,7 @@ with(df_Vogel, {
     sprintf("L2-distance:                 %.3f",
             params[[3]]$L2_fit),
     
-    sprintf("Binormal model - concave"),
+    sprintf("Beta model - concave"),
     sprintf("Parameters (alpha, beta):   (%.2f, %.2f)",
             params[[4]]$pars_fit[1],
             params[[4]]$pars_fit[2]

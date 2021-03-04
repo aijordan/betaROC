@@ -1,16 +1,61 @@
 Replication material: Gneiting and Vogel (2021)
 ================
 
+The following scripts replicate the results shown in Table 1 and Figure
+1 from the study by Gneiting and Vogel (2021).
+
+Expected runtime (on an average notebook from 2018, i5-8250U CPU):
+approximately 10 minutes.
+
 ``` r
 library(tidyverse)
-library(devtools)
-load_all()
+
+devtools::load_all()
 
 data("aSAH_Robin")
 data("hiv_Sing")
 data("PSA_Etzioni")
 data("WS_Vogel")
+
+sessionInfo()
 ```
+
+    ## R version 4.0.4 (2021-02-15)
+    ## Platform: x86_64-w64-mingw32/x64 (64-bit)
+    ## Running under: Windows 10 x64 (build 19041)
+    ## 
+    ## Matrix products: default
+    ## 
+    ## locale:
+    ## [1] LC_COLLATE=English_Germany.1252  LC_CTYPE=English_Germany.1252   
+    ## [3] LC_MONETARY=English_Germany.1252 LC_NUMERIC=C                    
+    ## [5] LC_TIME=English_Germany.1252    
+    ## 
+    ## attached base packages:
+    ## [1] stats     graphics  grDevices utils     datasets  methods   base     
+    ## 
+    ## other attached packages:
+    ##  [1] betaROC_0.1.0   testthat_3.0.0  forcats_0.5.0   stringr_1.4.0  
+    ##  [5] dplyr_1.0.2     purrr_0.3.4     readr_1.4.0     tidyr_1.1.2    
+    ##  [9] tibble_3.0.4    ggplot2_3.3.2   tidyverse_1.3.0
+    ## 
+    ## loaded via a namespace (and not attached):
+    ##  [1] Rcpp_1.0.5        lubridate_1.7.9.2 prettyunits_1.1.1 ps_1.4.0         
+    ##  [5] assertthat_0.2.1  rprojroot_2.0.2   digest_0.6.27     R6_2.5.0         
+    ##  [9] cellranger_1.1.0  backports_1.2.0   reprex_0.3.0      evaluate_0.14    
+    ## [13] httr_1.4.2        pillar_1.4.6      rlang_0.4.8       readxl_1.3.1     
+    ## [17] rstudioapi_0.13   callr_3.5.1       rmarkdown_2.5     desc_1.2.0       
+    ## [21] devtools_2.3.2    munsell_0.5.0     broom_0.7.2       compiler_4.0.4   
+    ## [25] modelr_0.1.8      xfun_0.19         pkgconfig_2.0.3   pkgbuild_1.1.0   
+    ## [29] htmltools_0.5.0   tidyselect_1.1.0  fansi_0.4.1       crayon_1.3.4     
+    ## [33] dbplyr_2.0.0      withr_2.3.0       grid_4.0.4        jsonlite_1.7.1   
+    ## [37] gtable_0.3.0      lifecycle_0.2.0   DBI_1.1.0         magrittr_2.0.1   
+    ## [41] scales_1.1.1      cli_2.1.0         stringi_1.5.3     fs_1.5.0         
+    ## [45] remotes_2.2.0     xml2_1.3.2        ellipsis_0.3.1    generics_0.1.0   
+    ## [49] vctrs_0.3.5       tools_4.0.4       glue_1.4.2        hms_0.5.3        
+    ## [53] processx_3.4.4    pkgload_1.1.0     yaml_2.2.1        colorspace_2.0-0 
+    ## [57] sessioninfo_1.1.1 rvest_0.3.6       memoise_1.1.0     knitr_1.30       
+    ## [61] haven_2.3.1       usethis_1.6.3
 
 ``` r
 empROC <- lapply(
@@ -69,7 +114,7 @@ with(df_Etzioni, {
     sprintf("L2-distance:                 %.3f",
             params[[3]]$L2_fit),
     
-    sprintf("Binormal model - concave"),
+    sprintf("Beta model - concave"),
     sprintf("Parameters (alpha, beta):   (%.2f, %.2f)",
             params[[4]]$pars_fit[1],
             params[[4]]$pars_fit[2]
@@ -90,7 +135,7 @@ with(df_Etzioni, {
     ## Beta model - unrestricted
     ## Parameters (alpha, beta):   (0.34, 1.32)
     ## L2-distance:                 0.042
-    ## Binormal model - concave
+    ## Beta model - concave
     ## Parameters (alpha, beta):   (0.39, 1.61)
     ## L2-distance:                 0.045
 
@@ -125,7 +170,7 @@ Coreceptor usage SVM predictor, 3450 observations
     ## Beta model - unrestricted
     ## Parameters (alpha, beta):   (0.15, 1.44)
     ## L2-distance:                 0.023
-    ## Binormal model - concave
+    ## Beta model - concave
     ## Parameters (alpha, beta):   (0.17, 1.83)
     ## L2-distance:                 0.025
 
@@ -147,7 +192,7 @@ Clinical outcome S100\(\beta\) concentration, 113 observations
     ## Beta model - unrestricted
     ## Parameters (alpha, beta):   (0.36, 0.96)
     ## L2-distance:                 0.032
-    ## Binormal model - concave
+    ## Beta model - concave
     ## Parameters (alpha, beta):   (0.52, 1.48)
     ## L2-distance:                 0.050
 
@@ -169,7 +214,7 @@ Precipitation NWP forecast, 5449 observations
     ## Beta model - unrestricted
     ## Parameters (alpha, beta):   (0.79, 2.57)
     ## L2-distance:                 0.006
-    ## Binormal model - concave
+    ## Beta model - concave
     ## Parameters (alpha, beta):   (0.79, 2.57)
     ## L2-distance:                 0.006
 
