@@ -1,0 +1,8 @@
+The content of the betaROC repository as a whole is distributed under GPL-3 (GNU GENERAL PUBLIC LICENSE version 3).
+
+The betaROC repository contains modified open source products:
+
+- data set "aSAH" from the pROC package (https://cran.r-project.org/package=pROC), licensed under GPL-3
+- data set "ROCR.hiv" from the ROCR package (https://cran.r-project.org/package=ROCR), licensed under GPL-2 and GPL-3
+- data set "psa2b.csv" from https://research.fredhutch.org/diagnostic-biomarkers-center/en/datasets.html
+- historic products from the European Center for Medium-Range Weather Forecasts (ECMWF, https://www.ecmwf.int/), licensed under CC-BY 4.0
