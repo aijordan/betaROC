@@ -23,7 +23,7 @@ The folder "/data" contains:
 - the data set "aSAH_Robin.RData", which is a modified version (see "/data/raw/aSAH_Robin.R") of the data set "aSAH" from the [pROC package](https://cran.r-project.org/package=pROC),
 - the data set "hiv_Sing.RData", which is a modified version (see "/data/raw/hiv_Sing.R") of the data set "ROCR.hiv" from the [ROCR package](https://cran.r-project.org/package=ROCR),
 - the data set "PSA_Etzioni.RData", which is a modified version (see "/data/raw/PSA_Etzioni.R") of the data set "psa2b.csv" from the "CARET PSA" study by Etzioni et al. (1999) and available from the [Diagnostic and Biomarkers Statistical (DABS) Center](https://research.fredhutch.org/diagnostic-biomarkers-center/en/datasets.html),
-- the data set "WS_Vogel.RData", which is a modified version of "/data/raw/Forecast_observation_data_WS.RData" (source: Vogel et al. 2020), which uses historic products from the European Center for Medium-Range Weather Forecasts ([ECMWF](https://www.ecmwf.int/)).
+- the data set "WS_Vogel.RData", which is a modified version of "/data/raw/Forecast_observation_data_WS.RData" (source: Vogel et al. 2018), which uses historic products from the European Center for Medium-Range Weather Forecasts ([ECMWF](https://www.ecmwf.int/)).
 
 ## References
 
