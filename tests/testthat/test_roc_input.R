@@ -139,8 +139,8 @@ forc <- forc11
 
 test_that("attributes are set correctly",{
 
-  expect_equal(roc(obs ~ forc, emp_info = "concave")$emp_info, "concave")
-  expect_equal(roc(obs ~ forc, emp_info = "c")$emp_info, "concave")
+  #expect_equal(roc(obs ~ forc, emp_info = "concave")$emp_info, "concave")
+  #expect_equal(roc(obs ~ forc, emp_info = "c")$emp_info, "concave")
   expect_equal(roc(obs ~ forc, emp_info = "unrestricted")$emp_info, "unrestricted")
   expect_equal(roc(obs ~ forc, emp_info = "u")$emp_info, "unrestricted")
 
@@ -153,8 +153,8 @@ test_that("attributes are set correctly",{
     list(method = c("beta2p", "empirical"), info = "concave"))
 
   expect_equal(
-    roc(obs ~ forc, fit_method = "bin3", fit_info = "con")$MDE_info,
-    list(method = c("bin3p", "empirical"), info = "concave"))
+    roc(obs ~ forc, fit_method = "bin2p", fit_info = "con")$MDE_info,
+    list(method = c("bin2p", "empirical"), info = "concave"))
 })
 
 

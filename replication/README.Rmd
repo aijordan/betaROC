@@ -9,8 +9,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 The following scripts replicate the results shown in Table 1 and Figure 1 from the study by Gneiting and Vogel (2021).
 
-Expected runtime (on an average notebook from 2018, i5-8250U CPU): approximately 10 minutes.
-
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 
@@ -44,7 +42,7 @@ df <- tibble(
   MDE_info = rep(MDE_info, times = 4)
 ) %>%
   mutate(
-    params = map2(empROC, MDE_info, fit_MDE)
+    params = map2(empROC, MDE_info, MDE)
   )
 
 ```
@@ -53,7 +51,7 @@ df <- tibble(
 
 Prostate cancer antigen ratio, 116 observations
 
-```{r warning = FALSE}
+```{r EtzioniEtAl1999, warning = FALSE}
 df_Etzioni <- filter(df, study == "Etzioni")
 
 with(df_Etzioni, {
@@ -113,7 +111,7 @@ Empirical (black), fitted binormal (red) and fitted beta (blue) ROC curves in th
 
 Coreceptor usage SVM predictor, 3450 observations
 
-```{r echo = FALSE}
+```{r SingEtAl2005, echo = FALSE}
 df_Sing <- filter(df, study == "Sing")
 
 with(df_Sing, {
@@ -172,7 +170,7 @@ Empirical (black), fitted binormal (red) and fitted beta (blue) ROC curves in th
 
 Clinical outcome S100$\beta$ concentration, 113 observations
 
-```{r echo = FALSE}
+```{r RobinEtAl2011, echo = FALSE}
 df_Robin <- filter(df, study == "Robin")
 
 with(df_Robin, {
@@ -232,7 +230,7 @@ Empirical (black), fitted binormal (red) and fitted beta (blue) ROC curves in th
 
 Precipitation NWP forecast, 5449 observations
 
-```{r echo = FALSE}
+```{r VogelEtAl2018, echo = FALSE}
 df_Vogel <- filter(df, study == "Vogel")
 
 with(df_Vogel, {

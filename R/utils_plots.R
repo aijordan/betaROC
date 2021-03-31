@@ -7,11 +7,7 @@
 #'
 #' @return The output is the same plot but with left-aligned caption and a
 #'  subtitle if provided
-leftalign_caption <- function(p, ...){
-
-  if(missing(p)) stop("Please provide a plot")
-  if(!exists("caption")) caption <- NULL
-  if(!exists("subtitle")) subtitle <- NULL
+leftalign_caption <- function(p, caption = NULL, subtitle = NULL){
 
   if(is.null(caption) & is.null(subtitle)) return(p)
 
@@ -102,7 +98,7 @@ plot.roc <- function(x, which, ...) {
 #'
 #' @inheritParams plot.roc
 #'
-#' @details
+#' @details to be added
 plot_roc_histogramm <- function(x, ...){
 
   obsforc_df  <- as.data.frame.roc(x, type = "obsforc") %>% as.tibble()
@@ -137,7 +133,7 @@ plot_roc_histogramm <- function(x, ...){
     geom_hline(yintercept = 0) +
     xlab(predictor) + ylab("") + ggtitle("", subtitle = "") +
     theme(legend.position = "none") +
-    scale_fill_manual(name = "Observation", values = colors[1:2]) +
+    scale_fill_manual(name = "Observation", values = color[1:2]) +
 
     scale_y_continuous(
       labels = NULL,
@@ -174,12 +170,15 @@ plot_roc_empirical <- function(x, ...){
 
 #' Plot function for beta ROC curves
 #'
-#' @inheritParams get_TPR
-#' @param p
-#' @param lty
-#' @param lwd
+#' @param pars parameters for the ROC family given by \code{MDE_info}
+#' @inheritParams MDE
+#' @param p ggplot object to add a line to
+#' @param lty line type
+#' @param lwd line width
+#' @param color line color
 #'
-plot_beta <- function(pars, MDE_info, p, lty, lwd){
+#' @export
+plot_beta <- function(pars, MDE_info, p, lty, lwd, color){
 
   if(missing(pars)) stop("pars need to be specified")
 
@@ -194,8 +193,8 @@ plot_beta <- function(pars, MDE_info, p, lty, lwd){
 
   if(missing(lty)) lty <- 1
   if(missing(lwd)) lwd <- 0.7
+  if (missing(color)) color <- "#377EB8"
 
-  color <- "#377EB8"
   FPR <- seq(0, 1, by = 0.005)
   TPR <- get_TPR(FPR, pars, MDE_info)
   tib <- tibble(FPR = c(0, FPR, 1), TPR = c(0, TPR, 1))
@@ -215,7 +214,17 @@ plot_beta <- function(pars, MDE_info, p, lty, lwd){
   return(p)
 }
 
-plot_binormal <- function(pars, MDE_info, p, lty, lwd){
+#' Plot function for binormal ROC curves
+#'
+#' @param pars parameters for the ROC family given by \code{MDE_info}
+#' @inheritParams MDE
+#' @param p ggplot object to add a line to
+#' @param lty line type
+#' @param lwd line width
+#' @param color line color
+#'
+#' @export
+plot_binormal <- function(pars, MDE_info, p, lty, lwd, color){
 
   if(missing(pars)) stop("pars need to be specified")
 
@@ -228,11 +237,11 @@ plot_binormal <- function(pars, MDE_info, p, lty, lwd){
 
   if(missing(lty)) lty <- 1
   if(missing(lwd)) lwd <- 0.7
+  if (missing(color)) color <- "#377EB8"
 
-  color <- "#377EB8"
   FPR <- seq(0, 1, by = 0.005)
   TPR <- get_TPR(FPR, pars, MDE_info)
-  tib <-   tib <- tibble(FPR = c(0, FPR, 1), TPR = c(0, TPR, 1))
+  tib <-   tib <- tibble::tibble(FPR = c(0, FPR, 1), TPR = c(0, TPR, 1))
 
   bininfo <- paste0(round(pars, 1), collapse = "; ")
   subtitle <- paste0("Binormal parameters (", bininfo, ")")

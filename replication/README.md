@@ -4,9 +4,6 @@ Replication material: Gneiting and Vogel (2021)
 The following scripts replicate the results shown in Table 1 and Figure
 1 from the study by Gneiting and Vogel (2021).
 
-Expected runtime (on an average notebook from 2018, i5-8250U CPU):
-approximately 10 minutes.
-
 ``` r
 library(tidyverse)
 
@@ -22,40 +19,43 @@ sessionInfo()
 
     ## R version 4.0.4 (2021-02-15)
     ## Platform: x86_64-w64-mingw32/x64 (64-bit)
-    ## Running under: Windows 10 x64 (build 19041)
+    ## Running under: Windows 10 x64 (build 19042)
     ## 
     ## Matrix products: default
     ## 
     ## locale:
-    ## [1] LC_COLLATE=English_Germany.1252  LC_CTYPE=English_Germany.1252   
-    ## [3] LC_MONETARY=English_Germany.1252 LC_NUMERIC=C                    
-    ## [5] LC_TIME=English_Germany.1252    
+    ## [1] LC_COLLATE=English_United States.1252 
+    ## [2] LC_CTYPE=English_United States.1252   
+    ## [3] LC_MONETARY=English_United States.1252
+    ## [4] LC_NUMERIC=C                          
+    ## [5] LC_TIME=English_United States.1252    
     ## 
     ## attached base packages:
     ## [1] stats     graphics  grDevices utils     datasets  methods   base     
     ## 
     ## other attached packages:
-    ##  [1] betaROC_0.1.0   testthat_3.0.0  forcats_0.5.0   stringr_1.4.0  
-    ##  [5] dplyr_1.0.2     purrr_0.3.4     readr_1.4.0     tidyr_1.1.2    
-    ##  [9] tibble_3.0.4    ggplot2_3.3.2   tidyverse_1.3.0
+    ##  [1] betaROC_0.1.0   testthat_3.0.2  forcats_0.5.1   stringr_1.4.0  
+    ##  [5] dplyr_1.0.5     purrr_0.3.4     readr_1.4.0     tidyr_1.1.3    
+    ##  [9] tibble_3.1.0    ggplot2_3.3.3   tidyverse_1.3.0
     ## 
     ## loaded via a namespace (and not attached):
-    ##  [1] Rcpp_1.0.5        lubridate_1.7.9.2 prettyunits_1.1.1 ps_1.4.0         
-    ##  [5] assertthat_0.2.1  rprojroot_2.0.2   digest_0.6.27     R6_2.5.0         
-    ##  [9] cellranger_1.1.0  backports_1.2.0   reprex_0.3.0      evaluate_0.14    
-    ## [13] httr_1.4.2        pillar_1.4.6      rlang_0.4.8       readxl_1.3.1     
-    ## [17] rstudioapi_0.13   callr_3.5.1       rmarkdown_2.5     desc_1.2.0       
-    ## [21] devtools_2.3.2    munsell_0.5.0     broom_0.7.2       compiler_4.0.4   
-    ## [25] modelr_0.1.8      xfun_0.19         pkgconfig_2.0.3   pkgbuild_1.1.0   
-    ## [29] htmltools_0.5.0   tidyselect_1.1.0  fansi_0.4.1       crayon_1.3.4     
-    ## [33] dbplyr_2.0.0      withr_2.3.0       grid_4.0.4        jsonlite_1.7.1   
-    ## [37] gtable_0.3.0      lifecycle_0.2.0   DBI_1.1.0         magrittr_2.0.1   
-    ## [41] scales_1.1.1      cli_2.1.0         stringi_1.5.3     fs_1.5.0         
-    ## [45] remotes_2.2.0     xml2_1.3.2        ellipsis_0.3.1    generics_0.1.0   
-    ## [49] vctrs_0.3.5       tools_4.0.4       glue_1.4.2        hms_0.5.3        
-    ## [53] processx_3.4.4    pkgload_1.1.0     yaml_2.2.1        colorspace_2.0-0 
-    ## [57] sessioninfo_1.1.1 rvest_0.3.6       memoise_1.1.0     knitr_1.30       
-    ## [61] haven_2.3.1       usethis_1.6.3
+    ##  [1] Rcpp_1.0.6        lubridate_1.7.10  prettyunits_1.1.1 ps_1.6.0         
+    ##  [5] rprojroot_2.0.2   assertthat_0.2.1  digest_0.6.27     utf8_1.1.4       
+    ##  [9] R6_2.5.0          cellranger_1.1.0  backports_1.2.1   reprex_1.0.0     
+    ## [13] evaluate_0.14     httr_1.4.2        pillar_1.5.1      rlang_0.4.10     
+    ## [17] readxl_1.3.1      rstudioapi_0.13   callr_3.5.1       rmarkdown_2.7    
+    ## [21] desc_1.3.0        devtools_2.3.2    munsell_0.5.0     broom_0.7.5      
+    ## [25] compiler_4.0.4    modelr_0.1.8      xfun_0.22         pkgconfig_2.0.3  
+    ## [29] pkgbuild_1.2.0    htmltools_0.5.1.1 tidyselect_1.1.0  fansi_0.4.2      
+    ## [33] crayon_1.4.1      dbplyr_2.1.0      withr_2.4.1       grid_4.0.4       
+    ## [37] jsonlite_1.7.2    gtable_0.3.0      lifecycle_1.0.0   DBI_1.1.1        
+    ## [41] magrittr_2.0.1    scales_1.1.1      cli_2.3.1         stringi_1.5.3    
+    ## [45] cachem_1.0.4      remotes_2.2.0     fs_1.5.0          xml2_1.3.2       
+    ## [49] ellipsis_0.3.1    generics_0.1.0    vctrs_0.3.6       tools_4.0.4      
+    ## [53] glue_1.4.2        hms_1.0.0         processx_3.4.5    pkgload_1.2.0    
+    ## [57] fastmap_1.1.0     yaml_2.2.1        colorspace_2.0-0  sessioninfo_1.1.1
+    ## [61] rvest_1.0.0       memoise_2.0.0     knitr_1.31        haven_2.3.1      
+    ## [65] usethis_2.0.1
 
 ``` r
 empROC <- lapply(
@@ -77,7 +77,7 @@ df <- tibble(
   MDE_info = rep(MDE_info, times = 4)
 ) %>%
   mutate(
-    params = map2(empROC, MDE_info, fit_MDE)
+    params = map2(empROC, MDE_info, MDE)
   )
 ```
 
@@ -152,7 +152,7 @@ with(df_Etzioni, {
 })
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](README_files/figure-gfm/EtzioniEtAl1999-1.png)<!-- -->
 
 Empirical (black), fitted binormal (red) and fitted beta (blue) ROC
 curves in the unrestricted (solid) and concave (dashed) case.
@@ -174,14 +174,14 @@ Coreceptor usage SVM predictor, 3450 observations
     ## Parameters (alpha, beta):   (0.17, 1.83)
     ## L2-distance:                 0.025
 
-![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](README_files/figure-gfm/SingEtAl2005-1.png)<!-- -->
 
 Empirical (black), fitted binormal (red) and fitted beta (blue) ROC
 curves in the unrestricted (solid) and concave (dashed) case.
 
 ### Robin et al. (2011)
 
-Clinical outcome S100\(\beta\) concentration, 113 observations
+Clinical outcome S100*β* concentration, 113 observations
 
     ## Binormal model - unrestricted
     ## Parameters (mu, sigma):     (0.75, 0.72)
@@ -196,7 +196,7 @@ Clinical outcome S100\(\beta\) concentration, 113 observations
     ## Parameters (alpha, beta):   (0.52, 1.48)
     ## L2-distance:                 0.050
 
-![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](README_files/figure-gfm/RobinEtAl2011-1.png)<!-- -->
 
 Empirical (black), fitted binormal (red) and fitted beta (blue) ROC
 curves in the unrestricted (solid) and concave (dashed) case.
@@ -218,7 +218,7 @@ Precipitation NWP forecast, 5449 observations
     ## Parameters (alpha, beta):   (0.79, 2.57)
     ## L2-distance:                 0.006
 
-![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](README_files/figure-gfm/VogelEtAl2018-1.png)<!-- -->
 
 Empirical (black), fitted binormal (red) and fitted beta (blue) ROC
 curves in the unrestricted (solid) and concave (dashed) case.

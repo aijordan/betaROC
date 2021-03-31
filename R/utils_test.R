@@ -6,6 +6,8 @@
 #' @param testname Name of the test to be performed. The choices
 #'   goodness-of-fit, auc, and roc are available and partial matching is
 #'   supported.
+#' @param parametric no idea
+#' @param ... beats me
 #'
 #' @return Returns an object of class \code{roctest}, containing ...
 #' @details The function allows to test the goodness-of-fit of one ROC curve as
@@ -25,12 +27,12 @@
 #'   Parametric - Non-parametric (?) - for paired and unpaired data ROC curve -
 #'   Parametric - Non-parametric - for paired and unpaired data
 #'
-roc.test <- function(roc1, roc2, testname, parametric, ...){
+roc_test <- function(roc1, roc2, testname, parametric, ...){
 
   availnames <- c("goodness-of-fit", "auc", "roc")
 
   if(missing(testname)) testname <- "auc"
-  if(misssing(parametric)) parametric <- TRUE
+  if(missing(parametric)) parametric <- TRUE
 
   testname <- match.arg(testname, availnames)
 

@@ -6,9 +6,9 @@
 #' @param data optional; data frame which incorporates the variables named in
 #'   \code{formula}. If \code{data} is not specified, \code{roc} searches for
 #'   the variables specified in \code{formula} in .GlobalEnv.
-#' @param method Method specifies the type of ROC curve to be computed. Partial
+#' @param fit_method Method specifies the type of ROC curve to be computed. Partial
 #'   matching is supported and the following names are permitted.
-#'   \table{ll}{
+#'   \tabular{ll}{
 #'   \code{"empirical"} \tab generates only the empirical ROC curve \cr
 #'   \code{"bin2p"} \tab generates the classical 2-parameter binormal ROC model \cr
 #'   \code{"bin3p"} \tab generates the 3-parameter binormal ROC model \cr
@@ -19,6 +19,8 @@
 #'   horizontal straight edge at (1,1) \cr
 #'   \code{"beta4p"} \tab generates the 4-parameter beta ROC model
 #'   }
+#' @param emp_info should the empirical ROC curve be \code{"concave"} or \code{"unrestricted"}.
+#' @param fit_info should the parametric ROC curve be \code{"concave"} or \code{"unrestricted"}.
 #'
 #'
 #' @return The output is an object of class \code{roc} which is a list
@@ -36,10 +38,9 @@
 #'   associated L2 distances between empirical and parametric ROC curve
 #'   }
 #'
-#' @details TBD
+#' @details to be added
 #'
 #' @export
-#'
 roc <- function(formula, data, emp_info, fit_method, fit_info){
 
   info_avail <- c("concave", "unrestricted")
@@ -55,7 +56,7 @@ roc <- function(formula, data, emp_info, fit_method, fit_info){
 
   res$formula <- formula
   res$data <- data
-  res$model.frame <- model.frame(formula, data, na.action = na.omit)
+  res$model.frame <- stats::model.frame(formula, data, na.action = stats::na.omit)
   names(res$model.frame) <- c("obs", "forc")
   res$model.frame <- check_model.frame(res$model.frame)
 
@@ -68,19 +69,18 @@ roc <- function(formula, data, emp_info, fit_method, fit_info){
   res$MDE_info <- list(
     method = methods,
     info   = match.arg(fit_info, info_avail))
-  res$MDEfit <- fit_MDE(res$empROC, res$MDE_info)
+  res$MDEfit <- MDE(res$empROC, res$MDE_info)
 
   class(res) <- "roc"
   return(res)
 }
 
-print("ASYMPTOTISCHE VERTEILUNG EINFUEGEN")
-print("PLOTS EINFUEGEN")
-print("STATISTICAL TESTS EINFUEGEN")
-print("UNIT TESTS EINFUEGEN")
-
-print("DATA SETS EINFUEGEN")
-print("UEBERSICHT TESTS - EXISTIEREND UND FEHLEND - EINFUEGEN")
+# print("ASYMPTOTISCHE VERTEILUNG EINFUEGEN")
+# print("PLOTS EINFUEGEN")
+# print("STATISTICAL TESTS EINFUEGEN")
+# print("UNIT TESTS EINFUEGEN")
+#
+# print("UEBERSICHT TESTS - EXISTIEREND UND FEHLEND - EINFUEGEN")
 
 as.data.frame.roc <- function(x, type){
   availtypes <- c("obsforc", "roc")
