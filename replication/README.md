@@ -82,11 +82,11 @@ df <- tibble(
 ```
 
 The following script file runs the Monte Carlo goodness-of-fit test for
-each data set and parametric model, and saves them in the subfolder
-“goodness\_of\_fit\_files”. For the smaller data sets the runtime can be
-less than one minute, whereas the runtime for larger the data sets can
-be up to around one hour. These runtimes have been recorded on notebook
-with an Intel(R) Core(TM) i7-10810U processor.
+each data set and parametric model, and saves the results in the
+subfolder “goodness\_of\_fit\_files”. For the smaller data sets the
+runtime can be less than one minute, whereas the runtime for larger the
+data sets can be up to around one hour. These runtimes have been
+recorded on notebook with an Intel(R) Core(TM) i7-10810U processor.
 
 ``` r
 source("goodness_of_fit.R")
