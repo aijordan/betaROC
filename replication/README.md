@@ -81,6 +81,86 @@ df <- tibble(
   )
 ```
 
+The following script file runs the Monte Carlo goodness-of-fit test for
+each data set and parametric model, and saves them in the subfolder
+“goodness\_of\_fit\_files”. For the smaller data sets the runtime can be
+less than one minute, whereas the runtime for larger the data sets can
+be up to around one hour. These runtimes have been recorded on notebook
+with an Intel(R) Core(TM) i7-10810U processor.
+
+``` r
+source("goodness_of_fit.R")
+```
+
+``` r
+df$pvalue <- map2(df$study, df$MDE_info, function(study, MDE_info) {
+  filename <- sprintf("goodness_of_fit_files/%s_%s_%s.RData",
+                      study, MDE_info$method, MDE_info$info)
+  load(filename)
+  results$pval
+})
+```
+
+The following functions are used to print and plot the results.
+
+``` r
+format_results <- function(df) {
+  with(df, {
+    c(
+      sprintf("Binormal model - unrestricted"),
+      sprintf("Parameters (mu, sigma):     (%.2f, %.2f)",
+              params[[1]]$pars_fit[1], params[[1]]$pars_fit[2]),
+      sprintf("L2-distance:                 %.3f",
+              params[[1]]$L2_fit),
+      sprintf("P-value:                     %.3f",
+              pvalue[1]),
+      
+      sprintf("Binormal model - concave"),
+      sprintf("Parameters (mu, sigma):     (%.2f, %.2f)",
+              params[[2]]$pars_fit[1], params[[2]]$pars_fit[2]),
+      sprintf("L2-distance:                 %.3f",
+              params[[2]]$L2_fit),
+      sprintf("P-value:                     %.3f",
+              pvalue[2]),
+      
+      sprintf("Beta model - unrestricted"),
+      sprintf("Parameters (alpha, beta):   (%.2f, %.2f)",
+              params[[3]]$pars_fit[1], params[[3]]$pars_fit[2]),
+      sprintf("L2-distance:                 %.3f",
+              params[[3]]$L2_fit),
+      sprintf("P-value:                     %.3f",
+              pvalue[3]),
+    
+      sprintf("Beta model - concave"),
+      sprintf("Parameters (alpha, beta):   (%.2f, %.2f)",
+              params[[4]]$pars_fit[1], params[[4]]$pars_fit[2]),
+      sprintf("L2-distance:                 %.3f",
+              params[[4]]$L2_fit),
+      sprintf("P-value:                     %.3f",
+              pvalue[4])
+    )
+  }) %>%
+    cat(sep = "\n")
+}
+
+plot_results <- function(df_study) {
+  with(df_study, {
+    p <- plot_roc_empirical(empROC[[1]])
+    p <- plot_binormal(params[[1]]$pars_fit, MDE_info[[1]], p,
+                       color = "red")
+    p <- plot_binormal(params[[2]]$pars_fit, MDE_info[[2]], p,
+                       lty = 2, color = "red")
+    p <- plot_beta(params[[3]]$pars_fit, MDE_info[[3]], p,
+                   color = "blue")
+    p <- plot_beta(params[[4]]$pars_fit, MDE_info[[4]], p,
+                   lty = 2, color = "blue")
+    p +
+      theme(aspect.ratio = 1) +
+      geom_segment(mapping = aes(x = 0, xend = 1, y = 0, yend = 1), lty = 2)
+  })
+}
+```
+
 ### Etzioni et al. (1999)
 
 Prostate cancer antigen ratio, 116 observations
@@ -88,68 +168,28 @@ Prostate cancer antigen ratio, 116 observations
 ``` r
 df_Etzioni <- filter(df, study == "Etzioni")
 
-with(df_Etzioni, {
-  c(
-    sprintf("Binormal model - unrestricted"),
-    sprintf("Parameters (mu, sigma):     (%.2f, %.2f)",
-            params[[1]]$pars_fit[1],
-            params[[1]]$pars_fit[2]
-    ),
-    sprintf("L2-distance:                 %.3f",
-            params[[1]]$L2_fit),
-    
-    sprintf("Binormal model - concave"),
-    sprintf("Parameters (mu, sigma):     (%.2f, %.2f)",
-            params[[2]]$pars_fit[1],
-            params[[2]]$pars_fit[2]
-    ),
-    sprintf("L2-distance:                 %.3f",
-            params[[2]]$L2_fit),
-    
-    sprintf("Beta model - unrestricted"),
-    sprintf("Parameters (alpha, beta):   (%.2f, %.2f)",
-            params[[3]]$pars_fit[1],
-            params[[3]]$pars_fit[2]
-    ),
-    sprintf("L2-distance:                 %.3f",
-            params[[3]]$L2_fit),
-    
-    sprintf("Beta model - concave"),
-    sprintf("Parameters (alpha, beta):   (%.2f, %.2f)",
-            params[[4]]$pars_fit[1],
-            params[[4]]$pars_fit[2]
-    ),
-    sprintf("L2-distance:                 %.3f",
-            params[[4]]$L2_fit)
-  )
-}) %>%
-  cat(sep = "\n")
+format_results(df_Etzioni)
 ```
 
     ## Binormal model - unrestricted
     ## Parameters (mu, sigma):     (1.05, 0.78)
     ## L2-distance:                 0.043
+    ## P-value:                     0.109
     ## Binormal model - concave
     ## Parameters (mu, sigma):     (1.22, 1.00)
     ## L2-distance:                 0.056
+    ## P-value:                     0.125
     ## Beta model - unrestricted
     ## Parameters (alpha, beta):   (0.34, 1.32)
     ## L2-distance:                 0.042
+    ## P-value:                     0.121
     ## Beta model - concave
     ## Parameters (alpha, beta):   (0.39, 1.61)
     ## L2-distance:                 0.045
+    ## P-value:                     0.332
 
 ``` r
-with(df_Etzioni, {
-  p <- plot_roc_empirical(empROC[[1]])
-  p <- plot_binormal(params[[1]]$pars_fit, MDE_info[[1]], p, color = "red")
-  p <- plot_binormal(params[[2]]$pars_fit, MDE_info[[2]], p, lty = 2, color = "red")
-  p <- plot_beta(params[[3]]$pars_fit, MDE_info[[3]], p, color = "blue")
-  p <- plot_beta(params[[4]]$pars_fit, MDE_info[[4]], p, lty = 2, color = "blue")
-  p +
-    theme(aspect.ratio = 1) +
-    geom_segment(mapping = aes(x = 0, xend = 1, y = 0, yend = 1), lty = 2)
-})
+plot_results(df_Etzioni)
 ```
 
 ![](README_files/figure-gfm/EtzioniEtAl1999-1.png)<!-- -->
@@ -161,18 +201,32 @@ curves in the unrestricted (solid) and concave (dashed) case.
 
 Coreceptor usage SVM predictor, 3450 observations
 
+``` r
+df_Sing <- filter(df, study == "Sing")
+
+format_results(df_Sing)
+```
+
     ## Binormal model - unrestricted
     ## Parameters (mu, sigma):     (1.58, 0.65)
     ## L2-distance:                 0.019
+    ## P-value:                     0.001
     ## Binormal model - concave
     ## Parameters (mu, sigma):     (2.05, 1.00)
     ## L2-distance:                 0.039
+    ## P-value:                     0.785
     ## Beta model - unrestricted
     ## Parameters (alpha, beta):   (0.15, 1.44)
     ## L2-distance:                 0.023
+    ## P-value:                     0.001
     ## Beta model - concave
     ## Parameters (alpha, beta):   (0.17, 1.83)
     ## L2-distance:                 0.025
+    ## P-value:                     0.326
+
+``` r
+plot_results(df_Sing)
+```
 
 ![](README_files/figure-gfm/SingEtAl2005-1.png)<!-- -->
 
@@ -183,18 +237,32 @@ curves in the unrestricted (solid) and concave (dashed) case.
 
 Clinical outcome S100*β* concentration, 113 observations
 
+``` r
+df_Robin <- filter(df, study == "Robin")
+
+format_results(df_Robin)
+```
+
     ## Binormal model - unrestricted
     ## Parameters (mu, sigma):     (0.75, 0.72)
     ## L2-distance:                 0.033
+    ## P-value:                     0.593
     ## Binormal model - concave
     ## Parameters (mu, sigma):     (0.91, 1.00)
     ## L2-distance:                 0.060
+    ## P-value:                     0.114
     ## Beta model - unrestricted
     ## Parameters (alpha, beta):   (0.36, 0.96)
     ## L2-distance:                 0.032
+    ## P-value:                     0.635
     ## Beta model - concave
     ## Parameters (alpha, beta):   (0.52, 1.48)
     ## L2-distance:                 0.050
+    ## P-value:                     0.327
+
+``` r
+plot_results(df_Robin)
+```
 
 ![](README_files/figure-gfm/RobinEtAl2011-1.png)<!-- -->
 
@@ -205,18 +273,32 @@ curves in the unrestricted (solid) and concave (dashed) case.
 
 Precipitation NWP forecast, 5449 observations
 
+``` r
+df_Vogel <- filter(df, study == "Vogel")
+
+format_results(df_Vogel)
+```
+
     ## Binormal model - unrestricted
     ## Parameters (mu, sigma):     (1.13, 1.22)
     ## L2-distance:                 0.008
+    ## P-value:                     0.031
     ## Binormal model - concave
     ## Parameters (mu, sigma):     (0.99, 1.00)
     ## L2-distance:                 0.031
+    ## P-value:                     0.001
     ## Beta model - unrestricted
     ## Parameters (alpha, beta):   (0.79, 2.57)
     ## L2-distance:                 0.006
+    ## P-value:                     0.158
     ## Beta model - concave
     ## Parameters (alpha, beta):   (0.79, 2.57)
     ## L2-distance:                 0.006
+    ## P-value:                     0.399
+
+``` r
+plot_results(df_Vogel)
+```
 
 ![](README_files/figure-gfm/VogelEtAl2018-1.png)<!-- -->
 
