@@ -186,7 +186,7 @@ format_results(df_Etzioni)
     ## Beta model - concave
     ## Parameters (alpha, beta):   (0.39, 1.61)
     ## L2-distance:                 0.045
-    ## P-value:                     0.332
+    ## P-value:                     0.212
 
 ``` r
 plot_results(df_Etzioni)
@@ -214,7 +214,7 @@ format_results(df_Sing)
     ## Binormal model - concave
     ## Parameters (mu, sigma):     (2.05, 1.00)
     ## L2-distance:                 0.039
-    ## P-value:                     0.785
+    ## P-value:                     0.001
     ## Beta model - unrestricted
     ## Parameters (alpha, beta):   (0.15, 1.44)
     ## L2-distance:                 0.023
@@ -222,7 +222,7 @@ format_results(df_Sing)
     ## Beta model - concave
     ## Parameters (alpha, beta):   (0.17, 1.83)
     ## L2-distance:                 0.025
-    ## P-value:                     0.326
+    ## P-value:                     0.001
 
 ``` r
 plot_results(df_Sing)
@@ -258,7 +258,7 @@ format_results(df_Robin)
     ## Beta model - concave
     ## Parameters (alpha, beta):   (0.52, 1.48)
     ## L2-distance:                 0.050
-    ## P-value:                     0.327
+    ## P-value:                     0.203
 
 ``` r
 plot_results(df_Robin)
@@ -290,11 +290,11 @@ format_results(df_Vogel)
     ## Beta model - unrestricted
     ## Parameters (alpha, beta):   (0.79, 2.57)
     ## L2-distance:                 0.006
-    ## P-value:                     0.158
+    ## P-value:                     0.157
     ## Beta model - concave
     ## Parameters (alpha, beta):   (0.79, 2.57)
     ## L2-distance:                 0.006
-    ## P-value:                     0.399
+    ## P-value:                     0.157
 
 ``` r
 plot_results(df_Vogel)

@@ -17,7 +17,7 @@
 #'   the optimal parameters of a parametric ROC curve model.
 #'
 #' @export
-MDE <- function(empROC, MDE_info, maxit = 50){
+MDE <- function(empROC, MDE_info, maxit = 100, pars_init = NULL){
   if(all(MDE_info$method == "empirical")) return(NULL)
   if (inherits(empROC, "roc")) empROC <- empROC$empROC
   empROC <- dplyr::arrange(empROC, .data$FPR, .data$TPR)
@@ -33,7 +33,9 @@ MDE <- function(empROC, MDE_info, maxit = 50){
     beta4p = L2dist_empROC_beta4p
   )
 
-  pars_init <- fit_initial_pars(empROC, MDE_info)
+  if (is.null(pars_init)) {
+    pars_init <- fit_initial_pars(empROC, MDE_info)
+  }
   L2_init <- L2dist_empROC_parROC(pars_init, empROCwide, pencon = FALSE)
 
   est <- try(stats::optim(
@@ -83,10 +85,10 @@ fit_initial_pars <- function(empROC, MDE_info){
   if("bin3p" %in% MDEm & MDEi == "unrestricted") pars <- c(1,1,gamma)
   if("bin3p" %in% MDEm & MDEi == "concave") pars <- c(1,gamma)
 
-  if("beta2p" %in% MDEm) pars <- c(1,1)
-  if("beta3p_v" %in% MDEm) pars <- c(1,1,gamma)
-  if("beta3p_h" %in% MDEm) pars <- c(1,1,delta)
-  if("beta4p" %in% MDEm) pars <- c(1,1,gamma,delta)
+  if("beta2p" %in% MDEm) pars <- c(0.5, 2)
+  if("beta3p_v" %in% MDEm) pars <- c(0.5, 2,gamma)
+  if("beta3p_h" %in% MDEm) pars <- c(0.5, 2,delta)
+  if("beta4p" %in% MDEm) pars <- c(0.5, 2,gamma,delta)
 
   est <- try(stats::optim(
       par      = pars,
@@ -96,10 +98,10 @@ fit_initial_pars <- function(empROC, MDE_info){
       method   = "BFGS"
     ))
 
-  if(any(grepl("beta", MDEm)) & MDEi == "concave")
-    pars <- shift_ipar_beta(pars, MDE_info)
-
-  return(pars)
+  if(any(grepl("beta", MDEm)) & MDEi == "concave") {
+    return(shift_ipar_beta(est$par, MDE_info))
+  }
+  est$par
 }
 
 # @inheritParams fit_initial_pars
@@ -130,11 +132,7 @@ fit_ipar_delta <- function(empROC){
 #   inserted into the pars vector.
 # @export
 roc_sqe <- function(pars, empROC, MDE_info){
-  MDEm <- MDE_info$method
-  MDEi <- MDE_info$info
-  if(any(grepl("bin", MDEm)) & MDEi == "concave") pars <- c(pars[1], 1, pars[-1])
-
-  if(any(pars[1:2] <= 0)) return(1)
+  if(any(head(pars, 2) <= 0)) return(1)
   if(length(pars) >= 3 & (pars[3] < 0  | pars[3] > 1)) return(1)
   if(length(pars) >= 4 & (pars[4] < 0  | pars[4] > 1)) return(1)
 
@@ -154,23 +152,22 @@ roc_sqe <- function(pars, empROC, MDE_info){
 #   exactly on the edge of the triangular region
 shift_ipar_beta <- function(pars, MDE_info, eps = 0.1){
 
-  sepline <- function(x) 3.41-2.41*x
-  seplineinv <- function(y) (3.41-y)/2.41
-
   if(any(grepl("beta", MDE_info$method)) & MDE_info$info == "concave"){
 
-    s_x <- 1-eps/2.41
-    s_y <- sepline(s_x)
+    s_x <- 1 - eps
+    s_y <- 2 + eps - s_x
 
-    if(pars[2] >= 1+eps & pars[1] >= s_x){
-      pars[1] <- seplineinv(pars[2])
+    if (pars[1] < s_x && pars[1] + pars[2] > s_x + s_y) {
+      return(pars)
     }
-    if(pars[2] < 1+eps & pars[2]-pars[1] < s_y - s_x){
-      pars[1:2] <- c(s_x, s_y)
+    if (pars[1] > s_x) {
+      pars[1] <- s_x
+      if (pars[2] < s_y) {
+        pars[2] <- s_y
+      }
     }
-    if(pars[2]-pars[1] > s_y - s_x & pars[1]+pars[2] <= s_x + s_y){
-      s_par <- 1-(2.41*pars[1] + pars[2])/3.41
-      pars[1:2] <- pars[1:2] + s_par
+    if (pars[1] < s_x) {
+      pars[2] <- 2 + eps - pars[1]
     }
   }
   return(pars)

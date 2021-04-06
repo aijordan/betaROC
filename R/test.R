@@ -19,10 +19,16 @@ resample_test <- function(empROC, MDE_info, m) {
     }
   }
 
+  if (grepl("bin", MDE_info$method[1]) && MDE_info$info == "concave") {
+    pars_init <- fit$pars_fit[1]
+  } else {
+    pars_init <- shift_ipar_beta(fit$pars_fit, MDE_info)
+  }
+
   L2_reference <- replicate(m, {
     x <- sample_data()
     empROC <- roc(obs ~ forc, x)
-    MDE(empROC, MDE_info)$L2_fit
+    MDE(empROC, MDE_info, pars_init = pars_init)$L2_fit
   })
 
   list(

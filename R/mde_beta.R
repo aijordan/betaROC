@@ -99,7 +99,7 @@ get_TPR_beta4p <- function(FPR, pars) {
 
 # nonconcavity penalization ----
 penalize_beta <- function(L2dist, pars) {
-  penfac <- 1 + 100 * get_distance_to_beta_concave_region(pars)
+  penfac <- 1 + 50 * get_distance_to_beta_concave_region(pars)
   penincr <- pars[1] > 1 || sum(pars) < 2
   L2dist * penfac + penincr
 }
