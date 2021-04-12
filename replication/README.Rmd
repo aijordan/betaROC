@@ -8,10 +8,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```
 
+The file "README.Rmd" generates the files "README.md" and "README.html" when calling `rmarkdown::render("replication/README.Rmd")` from the base directory.
+
 The following scripts replicate the results shown in Table 1 and Figure 1 from the study by Gneiting and Vogel (2021).
 
 ```{r message=FALSE, warning=FALSE}
-library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(purrr)
 
 devtools::load_all()
 
