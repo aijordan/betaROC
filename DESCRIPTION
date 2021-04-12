@@ -9,7 +9,7 @@ Authors@R: c(
            role = "aut"),
     person(given = c("Alexander", "I."),
            family = "Jordan",
-           role = c("cre", "ctb"),
+           role = c("aut", "cre"),
            email = "alexander.jordan@h-its.org"))
 License: GPL-3
 Encoding: UTF-8
