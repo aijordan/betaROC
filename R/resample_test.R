@@ -1,17 +1,33 @@
+#' Goodness-of-fit test for parametric models of ROC curves
+#'
+#' @param roc an object of class \code{'roc'}.
+#' @param m the number of Monte Carlo replications.
+#' @inheritParams MDE
+#'
+#' @return
+#'   returns a list with entries
+#'   \tabular{ll}{
+#'   \code{L2_empirical} \tab the L2 distance of the fitted ROC curve model to
+#'   the empirical ROC curve \cr
+#'   \code{L2_reference} \tab a vector of L2 distances from the Monte Carlo
+#'   resample procedure \cr
+#'   \code{pval} \tab the p-value calculated as \code{(sum(L2_reference >= L2_empirical) + 1) / (m + 1)}
+#'   }
+#'
+#' @export
+resample_test <- function(roc, MDE_info, m = 100) {
+  stopifnot(inherits(roc, "roc"))
+  fit <- MDE(roc, MDE_info)
 
-resample_test <- function(empROC, MDE_info, m) {
-  stopifnot(inherits(empROC, "roc"))
-  fit <- MDE(empROC, MDE_info)
-
-  n0 <- sum(empROC$model.frame$obs == 0)
-  n1 <- sum(empROC$model.frame$obs == 1)
-  if (isTRUE(grepl("bin", MDE_info$method))) {
+  n0 <- sum(roc$model.frame$obs == 0)
+  n1 <- sum(roc$model.frame$obs == 1)
+  if (grepl("bin", MDE_info$method[1])) {
     mu <- fit$pars_fit[1]
     sigma <- fit$pars_fit[2]
     sample_data <- function() {
       sample_binormal(n0, n1, mu, sigma)
     }
-  } else if (isTRUE(grepl("beta", MDE_info$method))) {
+  } else if (grepl("beta", MDE_info$method[1])) {
     alpha <- fit$pars_fit[1]
     beta <- fit$pars_fit[2]
     sample_data <- function() {

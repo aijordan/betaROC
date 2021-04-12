@@ -9,6 +9,8 @@
 #'   distance estimation (MDE) fit. Entries are \code{method} and \code{info}.
 #' @param maxit maximum number of iterations for the numerical optimization,
 #'   a \code{control} parameter for \code{\link[stats]{optim}}.
+#' @param pars_init optional; a vector of initial parameter values for the
+#'   numerical optimization.
 #'
 #' @return Returns a list with initially estimated parameters and corresponding
 #'   L2 distance and the final estimated parameters as well as the associated L2
@@ -73,22 +75,27 @@ MDE <- function(empROC, MDE_info, maxit = 100, pars_init = NULL){
 # @details to be added
 # @export
 fit_initial_pars <- function(empROC, MDE_info){
-
-  MDEm <- MDE_info$method
-  MDEi <- MDE_info$info
   empROC <- fill_empROC(empROC)
-  gamma <- fit_ipar_gamma(empROC)
-  delta <- fit_ipar_delta(empROC)
+  if (MDE_info$method[1] %in% c("bin3p", "beta3p_v", "beta4p")) {
+    gamma <- fit_ipar_gamma(empROC)
+  }
+  if (MDE_info$method[1] %in% c("beta3p_h", "beta4p")) {
+    delta <- fit_ipar_delta(empROC)
+  }
 
-  if("bin2p" %in% MDEm & MDEi == "unrestricted") pars <- c(1,1)
-  if("bin2p" %in% MDEm & MDEi == "concave") pars <- 1
-  if("bin3p" %in% MDEm & MDEi == "unrestricted") pars <- c(1,1,gamma)
-  if("bin3p" %in% MDEm & MDEi == "concave") pars <- c(1,gamma)
-
-  if("beta2p" %in% MDEm) pars <- c(0.5, 2)
-  if("beta3p_v" %in% MDEm) pars <- c(0.5, 2,gamma)
-  if("beta3p_h" %in% MDEm) pars <- c(0.5, 2,delta)
-  if("beta4p" %in% MDEm) pars <- c(0.5, 2,gamma,delta)
+  pars <- switch(
+    MDE_info$method[1],
+    bin2p = switch(MDE_info$info,
+                   unrestricted = c(1, 1),
+                   concave = 1),
+    bin3p = switch(MDE_info$info,
+                   unrestricted = c(1, 1, gamma),
+                   concave = c(1, gamma)),
+    beta2p = c(0.5, 2),
+    beta3p_v = c(0.5, 2, gamma),
+    beta3p_h = c(0.5, 2, delta),
+    beta4p = c(0.5, 2, gamma, delta)
+  )
 
   est <- try(stats::optim(
       par      = pars,
@@ -98,7 +105,7 @@ fit_initial_pars <- function(empROC, MDE_info){
       method   = "BFGS"
     ))
 
-  if(any(grepl("beta", MDEm)) & MDEi == "concave") {
+  if(grepl("beta", MDE_info$method[1]) && MDE_info$info == "concave") {
     return(shift_ipar_beta(est$par, MDE_info))
   }
   est$par
@@ -132,7 +139,7 @@ fit_ipar_delta <- function(empROC){
 #   inserted into the pars vector.
 # @export
 roc_sqe <- function(pars, empROC, MDE_info){
-  if(any(head(pars, 2) <= 0)) return(1)
+  if(any(utils::head(pars, 2) <= 0)) return(1)
   if(length(pars) >= 3 & (pars[3] < 0  | pars[3] > 1)) return(1)
   if(length(pars) >= 4 & (pars[4] < 0  | pars[4] > 1)) return(1)
 

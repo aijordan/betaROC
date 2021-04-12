@@ -75,21 +75,10 @@ roc <- function(formula, data, emp_info, fit_method, fit_info){
   return(res)
 }
 
-# print("ASYMPTOTISCHE VERTEILUNG EINFUEGEN")
-# print("PLOTS EINFUEGEN")
-# print("STATISTICAL TESTS EINFUEGEN")
-# print("UNIT TESTS EINFUEGEN")
-#
-# print("UEBERSICHT TESTS - EXISTIEREND UND FEHLEND - EINFUEGEN")
-
-as.data.frame.roc <- function(x, type){
-  availtypes <- c("obsforc", "roc")
-  if(missing(type)) type <- "roc"
-  type <- match.arg(type, availtypes)
-  df <- if(type == "obsforc"){
-    as.data.frame(x$model.frame)
-  }else{
-    as.data.frame(x$empROC)
-  }
-  return(df)
+as.data.frame.roc <- function(x, type = c("roc", "obsforc")) {
+  type <- match.arg(type)
+  switch(type,
+         roc = as.data.frame(x$empROC),
+         obsforc = as.data.frame(x$model.frame)
+  )
 }

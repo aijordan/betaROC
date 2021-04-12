@@ -111,7 +111,7 @@ format_results <- function(df) {
 
 plot_results <- function(df_study) {
   with(df_study, {
-    p <- plot_roc_empirical(empROC[[1]])
+    p <- plot_empirical(empROC[[1]])
     p <- plot_binormal(params[[1]]$pars_fit, MDE_info[[1]], p,
                        color = "red")
     p <- plot_binormal(params[[2]]$pars_fit, MDE_info[[2]], p,

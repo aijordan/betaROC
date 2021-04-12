@@ -4,7 +4,7 @@
 \alias{MDE}
 \title{Minimum distance fit for empirical ROC curve}
 \usage{
-MDE(empROC, MDE_info, maxit = 50)
+MDE(empROC, MDE_info, maxit = 100, pars_init = NULL)
 }
 \arguments{
 \item{empROC}{\code{data.frame} with columns \code{FPR} and \code{TPR},
@@ -15,6 +15,9 @@ distance estimation (MDE) fit. Entries are \code{method} and \code{info}.}
 
 \item{maxit}{maximum number of iterations for the numerical optimization,
 a \code{control} parameter for \code{\link[stats]{optim}}.}
+
+\item{pars_init}{optional; a vector of initial parameter values for the
+numerical optimization.}
 }
 \value{
 Returns a list with initially estimated parameters and corresponding

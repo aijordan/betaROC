@@ -1,22 +1,24 @@
 Package: betaROC
-Type: Package
+Version: 0.2.0
 Title: Minimum Distance Estimation for ROC curves
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: Estimating ROC curve models using L2 distance minimization. See
+    Gneiting and Vogel (2018) <arXiv:1809.04808>.
+Authors@R: c(
+    person(given = "Peter",
+           family = "Vogel",
+           role = "aut"),
+    person(given = c("Alexander", "I."),
+           family = "Jordan",
+           role = c("cre", "ctb"),
+           email = "alexander.jordan@h-its.org"))
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Depends:
     R (>= 3.5.0)
-Suggests: testthat,
-    RColorBrewer,
-    cowplot,
-    isotone
+Suggests: testthat
 Imports: tibble,
     ggplot2,
-    tidyr,
-    dplyr
+    dplyr,
+    rlang
 RoxygenNote: 7.1.1

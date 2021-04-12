@@ -3,4 +3,7 @@
 export(MDE)
 export(plot_beta)
 export(plot_binormal)
+export(plot_empirical)
+export(resample_test)
 export(roc)
+importFrom(rlang,.data)

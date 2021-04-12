@@ -1,4 +1,4 @@
-library(betaROC)
+devtools::load_all()
 
 data("aSAH_Robin")
 data("hiv_Sing")
@@ -32,7 +32,7 @@ if (dir.exists(foldername)) {
     filepath <- sprintf("%s/%s", foldername, filename)
     if (!file.exists(filepath)) {
       set.seed(42)
-      results <- betaROC:::resample_test(empROC, MDE_info, 999)
+      results <- resample_test(empROC, MDE_info, 999)
       save("results", file = filepath)
     }
   })

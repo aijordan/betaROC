@@ -34,7 +34,7 @@ sessionInfo()
     ## [1] stats     graphics  grDevices utils     datasets  methods   base     
     ## 
     ## other attached packages:
-    ##  [1] betaROC_0.1.0   testthat_3.0.2  forcats_0.5.1   stringr_1.4.0  
+    ##  [1] betaROC_0.2.0   testthat_3.0.2  forcats_0.5.1   stringr_1.4.0  
     ##  [5] dplyr_1.0.5     purrr_0.3.4     readr_1.4.0     tidyr_1.1.3    
     ##  [9] tibble_3.1.0    ggplot2_3.3.3   tidyverse_1.3.0
     ## 
@@ -145,7 +145,7 @@ format_results <- function(df) {
 
 plot_results <- function(df_study) {
   with(df_study, {
-    p <- plot_roc_empirical(empROC[[1]])
+    p <- plot_empirical(empROC[[1]])
     p <- plot_binormal(params[[1]]$pars_fit, MDE_info[[1]], p,
                        color = "red")
     p <- plot_binormal(params[[2]]$pars_fit, MDE_info[[2]], p,
