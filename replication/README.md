@@ -38,22 +38,22 @@ sessionInfo()
     ## [1] stats     graphics  grDevices utils     datasets  methods   base     
     ## 
     ## other attached packages:
-    ## [1] betaROC_0.2.0  ggplot2_3.3.3  purrr_0.3.4    testthat_3.0.2 dplyr_1.0.5   
+    ## [1] betaROC_0.2.0  testthat_3.0.2 purrr_0.3.4    ggplot2_3.3.3  dplyr_1.0.5   
     ## 
     ## loaded via a namespace (and not attached):
-    ##  [1] tidyselect_1.1.0  xfun_0.22         remotes_2.2.0     colorspace_2.0-0 
-    ##  [5] vctrs_0.3.6       generics_0.1.0    htmltools_0.5.1.1 usethis_2.0.1    
-    ##  [9] yaml_2.2.1        utf8_1.1.4        rlang_0.4.10      pkgbuild_1.2.0   
-    ## [13] pillar_1.5.1      glue_1.4.2        withr_2.4.1       DBI_1.1.1        
-    ## [17] sessioninfo_1.1.1 lifecycle_1.0.0   stringr_1.4.0     munsell_0.5.0    
-    ## [21] gtable_0.3.0      devtools_2.3.2    memoise_2.0.0     evaluate_0.14    
-    ## [25] knitr_1.31        callr_3.5.1       fastmap_1.1.0     ps_1.6.0         
-    ## [29] fansi_0.4.2       scales_1.1.1      cachem_1.0.4      desc_1.3.0       
-    ## [33] pkgload_1.2.0     fs_1.5.0          digest_0.6.27     stringi_1.5.3    
-    ## [37] processx_3.4.5    rprojroot_2.0.2   grid_4.0.4        cli_2.3.1        
-    ## [41] tools_4.0.4       magrittr_2.0.1    tibble_3.1.0      crayon_1.4.1     
-    ## [45] pkgconfig_2.0.3   ellipsis_0.3.1    prettyunits_1.1.1 assertthat_0.2.1 
-    ## [49] rmarkdown_2.7     rstudioapi_0.13   R6_2.5.0          compiler_4.0.4
+    ##  [1] pillar_1.5.1      compiler_4.0.4    remotes_2.2.0     prettyunits_1.1.1
+    ##  [5] tools_4.0.4       pkgload_1.2.0     pkgbuild_1.2.0    digest_0.6.27    
+    ##  [9] evaluate_0.14     memoise_2.0.0     lifecycle_1.0.0   tibble_3.1.0     
+    ## [13] gtable_0.3.0      pkgconfig_2.0.3   rlang_0.4.10      rstudioapi_0.13  
+    ## [17] DBI_1.1.1         cli_2.3.1         yaml_2.2.1        xfun_0.22        
+    ## [21] fastmap_1.1.0     withr_2.4.1       stringr_1.4.0     knitr_1.31       
+    ## [25] fs_1.5.0          desc_1.3.0        generics_0.1.0    vctrs_0.3.6      
+    ## [29] devtools_2.3.2    rprojroot_2.0.2   grid_4.0.4        tidyselect_1.1.0 
+    ## [33] glue_1.4.2        R6_2.5.0          processx_3.4.5    fansi_0.4.2      
+    ## [37] rmarkdown_2.7     sessioninfo_1.1.1 callr_3.5.1       magrittr_2.0.1   
+    ## [41] usethis_2.0.1     ps_1.6.0          scales_1.1.1      ellipsis_0.3.1   
+    ## [45] htmltools_0.5.1.1 assertthat_0.2.1  colorspace_2.0-0  utf8_1.1.4       
+    ## [49] stringi_1.5.3     munsell_0.5.0     cachem_1.0.4      crayon_1.4.1
 
 ``` r
 empROC <- lapply(
@@ -84,7 +84,7 @@ each data set and parametric model, and saves the results in the
 subfolder “goodness\_of\_fit\_files”. For the smaller data sets the
 runtime can be less than one minute, whereas the runtime for the larger
 data sets can be up to around one hour. These runtimes have been
-recorded on notebook with an Intel(R) Core(TM) i7-10810U processor.
+recorded on a notebook with an Intel(R) Core(TM) i7-10810U processor.
 
 ``` r
 source("goodness_of_fit.R")
